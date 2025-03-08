@@ -3,7 +3,10 @@ from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import timedelta
+from dotenv import load_dotenv
 
+
+load_dotenv()
 db = SQLAlchemy()
 jwt = JWTManager()
 
@@ -19,6 +22,8 @@ def create_app():
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
     db.init_app(app)
+    print("DATABASE_URL:", repr(os.getenv("DATABASE_URL")))
+
     jwt.init_app(app)
 
     from app.routes.routes import main
