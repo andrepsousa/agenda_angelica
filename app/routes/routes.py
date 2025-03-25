@@ -191,7 +191,7 @@ def deletar_servico(id_servico):
     except Exception as e:
         print(f"Erro ao tentar  deletar serviço: {e}")
 
-        
+
 @main.route('/usuarios', methods=["GET"])
 def get_usuarios():
     usuarios = listar_usuarios()
