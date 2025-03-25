@@ -22,18 +22,20 @@ def criar_agendamento_simples(data):
         raise ValueError("O cliente e o serviço são obrigatórios.")
     if data.get("status") != "ativo":
         raise ValueError("O serviço precisa estar ativo.")
+    
+    recorrencia = data.get("recorrencia", None)
     novo_agendamento = Agendamento(
         cliente_id=data["cliente_id"],
         servico_id=data["servico_id"],
         data_hora=data["data_hora"],
-        recorrencia=data["recorrencia"],
+        recorrencia=recorrencia,
         status=data["status"]
     )
 
     try:
         db.session.add(novo_agendamento)
         db.session.commit()
-        return novo_agendamento
+        return novo_agendamento.to_dict()
     except Exception as e:
         db.session.rollback()
         raise ValueError(f'Erro ao realizar agendamento: {e}')
