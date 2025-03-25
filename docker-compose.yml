@@ -1,0 +1,14 @@
+services:
+  agenda_db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=balde
+      - POSTGRES_PASSWORD=0710
+      - POSTGRES_DB=agenda_angelica
+    volumes:
+      - data_db:/var/lib/postgresql/data
+    
+volumes:
+  data_db:
