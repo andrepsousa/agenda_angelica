@@ -20,6 +20,15 @@ class Service(db.Model):
     preco = db.Column(db.Float, nullable=False, default=0.0)
     status = db.Column(db.Boolean, default=True)
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'nome': self.nome,
+            'descricao': self.descricao,
+            'preco': self.preco,
+            'status': self.status
+        }
+
     def __repr__(self):
         return f"<Service {self.nome}>"
 
@@ -37,6 +46,16 @@ class Agendamento(db.Model):
 
     usuario = db.relationship('User', backref='agendamentos')
     servico = db.relationship('Service', backref='agendamentos')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'cliente_id': self.cliente_id,
+            'servico_id': self.servico_id,
+            'data_hora': self.data_hora,
+            'recorrencia': self.recorrencia,
+            'status': self.status
+        }
 
     def __repr__(self):
         return (
