@@ -45,7 +45,7 @@ def get_agendamentos_id(id_agendamento):
     }), 200
 
 
-@main.route('/agendamentos', methods=['POST'])
+@main.route('/agendamentos/novo', methods=['POST'])
 def criar_agendamento():
     data = request.get_json()
 
@@ -68,7 +68,7 @@ def criar_agendamento():
         return jsonify({"erro": str(e)}), 400
 
 
-@main.route('/agendamentos/<int:id_agendamento>', methods=['PUT'])
+@main.route('/agendamentos/<int:id_agendamento>/update', methods=['PUT'])
 def atualizar_agendamentos(id_agendamento):
     try:
         data = request.json
@@ -93,7 +93,7 @@ def atualizar_agendamentos(id_agendamento):
         return jsonify({"erro": "Erro interno no servidor"}), 500
 
 
-@main.route('/agendamentos/<int:id_agendamento>', methods=['DELETE'])
+@main.route('/agendamentos/<int:id_agendamento>/delete', methods=['DELETE'])
 def deletar_agendamento(id_agendamento):
     try:
         agendamento_deletado = delete_agendamento(id_agendamento)
@@ -127,7 +127,7 @@ def get_servicos_id(id_servico):
         return jsonify({"erro": str(e)}), 404
 
 
-@main.route('/servicos/criar', methods=['POST'])
+@main.route('/servicos/novo', methods=['POST'])
 def set_servico():
     try:
         data = request.json
@@ -154,7 +154,7 @@ def set_servico():
         return jsonify({"erro": str(e)}), 500
 
 
-@main.route('/servicos/<int:id_servico>/atualizar', methods=['PUT'])
+@main.route('/servicos/<int:id_servico>/update', methods=['PUT'])
 def update_servico(id_servico):
     try:
         data = request.json
@@ -177,7 +177,7 @@ def update_servico(id_servico):
         return jsonify({"erro": "Erro interno no servidor"}), 500
 
 
-@main.route('/servicos/<int:id_servico>/deletar',  methods=['DELETE'])
+@main.route('/servicos/<int:id_servico>/delete',  methods=['DELETE'])
 def deletar_servico(id_servico):
     try:
         servico_deletado = delete_servico(id_servico)
@@ -238,7 +238,7 @@ def novo_usuario():
         return jsonify({"erro": "Erro interno no servidor"}), 500
 
 
-@main.route('/usuarios/<int:id_usuarios>/editar', methods=["PUT"])
+@main.route('/usuarios/<int:id_usuarios>/update', methods=["PUT"])
 def atualizar_usuario(id_usuarios):
     try:
         dados = request.json
@@ -258,7 +258,7 @@ def atualizar_usuario(id_usuarios):
         return jsonify({"erro": "Erro interno no servidor"}), 500
 
 
-@main.route('/usuarios/<int:id_usuarios>/deletar', methods=["DELETE"])
+@main.route('/usuarios/<int:id_usuarios>/delete', methods=["DELETE"])
 def deletar_usuario(id_usuarios):
     try:
         usuario_deletado = deletar_user(id_usuarios)
