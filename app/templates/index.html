@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Inicial - Agenda Angelica</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Bem-vindo ao Sistema de Agendamento</h1>
+
+    <div>
+        <a href="{{ url_for('main.criar_agendamento') }}">
+            <button>Cadastrar Agendamento</button>
+        </a>
+        <a href="{{ url_for('main.list_servicos') }}">
+            <button>Ver Serviços</button>
+        </a>
+        <a href="{{ url_for('main.get_agendamentos') }}">
+            <button>Ver Agendamentos</button>
+        </a>
+        <a href="{{ url_for('main.get_usuarios') }}">
+            <button>Usuários</button>
+        </a>
+    </div>
+
+    <h2>Agendamentos para Hoje</h2>
+    <div>
+        {% if agendamentos %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome do Cliente</th>
+                        <th>Serviço</th>
+                        <th>Data e Hora</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agendamento in agendamentos %}
+                        <tr>
+                            <td>{{ agendamento.usuario.nome }}</td>
+                            <td>{{ agendamento.servico.nome }}</td>
+                            <td>{{ agendamento.data_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>{{ agendamento.status }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Não há agendamentos para hoje.</p>
+        {% endif %}
+    </div>
+
+    <h2>Serviços Disponíveis</h2>
+<div class="servicos-container">
+    {% if servicos %}
+        <div class="servicos">
+            {% for servico in servicos %}
+                <div class="servico-card">
+                    <h3>{{ servico.nome }}</h3>
+                    <p class="descricao">{{ servico.descricao }}</p>
+                    <p class="preco">R$ {{ servico.preco }}</p>
+                    <a href="{{ url_for('main.service_detail', id_servico=servico.id) }}">
+                        <button class="detalhes-btn">Ver Detalhes</button>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Não há serviços cadastrados no momento.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>

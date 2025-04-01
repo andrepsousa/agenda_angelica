@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuários</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Lista de Usuários</h2>
+
+        <div class="buttons">
+            <a href="{{ url_for('main.novo_usuario') }}"><button>Adicionar Novo Usuário</button></a>
+            <a href="{{ url_for('main.index') }}"><button>Voltar ao Início</button></a>
+        </div>
+        {% if usuarios %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                        <tr>
+                            <td>{{ usuario.id }}</td>
+                            <td>{{ usuario.nome }}</td>
+                            <td>{{ usuario.cpf }}</td>
+                            <td>
+                                <a href="{{ url_for('main.get_usuarios_id', id_usuarios=usuario.id) }}">
+                                    <button>Ver Detalhes</button>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Nenhum usuário encontrado.</p>
+        {% endif %}
+
+    </div>
+</body>
+</html>

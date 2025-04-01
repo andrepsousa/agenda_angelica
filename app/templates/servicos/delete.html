@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Deletar Serviço</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Tem certeza que deseja excluir este serviço?</h1>
+    <p><strong>Nome:</strong> {{ servico['nome'] }}</p>
+    <p><strong>Descrição:</strong> {{ servico['descricao'] }}</p>
+    <p><strong>Preço:</strong> R$ {{ servico['preco'] }}</p>
+
+    <!-- Exibição de mensagens flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Formulário para deletar o serviço -->
+    <form action="{{ url_for('main.deletar_servico', id_servico=servico['id']) }}" method="POST" 
+            onsubmit="return confirm('Tem certeza que deseja excluir este serviço?');">
+            <button type="submit">Confirmar Exclusão</button>
+    </form>
+
+
+    <!-- Link para cancelar a exclusão e voltar para a lista de serviços -->
+    <a href="{{ url_for('main.list_servicos') }}">Cancelar</a>
+</body>
+</html>

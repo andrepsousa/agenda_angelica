@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Agendamento</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        // Função para mostrar/ocultar o campo de número de recorrências baseado na seleção de recorrência
+        function toggleNumRecorrencias() {
+            var recorrenciaSelect = document.getElementById('recorrencia');
+            var numRecorrenciasField = document.getElementById('num_recorrencias_field');
+            var numRecorrenciasSelect = document.getElementById('num_recorrencias');
+            
+            if (recorrenciaSelect.value == 'semanal') {
+                numRecorrenciasField.style.display = 'block';  // Mostra o campo
+                numRecorrenciasSelect.disabled = false;  // Habilita o campo para edição
+            } else {
+                numRecorrenciasField.style.display = 'none';  // Esconde o campo
+                numRecorrenciasSelect.disabled = true;  // Desabilita o campo para não enviar valor
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Agendar Serviço</h2>
+
+        {% if erro %}
+            <p style="color: red;">{{ erro }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('main.criar_agendamento') }}" method="POST">
+            <div class="form-group">
+                <label for="cliente_id">Cliente:</label>
+                <select id="cliente_id" name="cliente_id" required>
+                    {% for cliente in clientes %}
+                        <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="servico_id">Serviço:</label>
+                <select id="servico_id" name="servico_id" required>
+                    {% for servico in servicos %}
+                        <option value="{{ servico.id }}">{{ servico.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="data_hora">Data e Hora:</label>
+                <input type="datetime-local" id="data_hora" name="data_hora" required>
+            </div>
+
+            <div class="form-group">
+                <label for="recorrencia">Recorrência:</label>
+                <select id="recorrencia" name="recorrencia" onchange="toggleNumRecorrencias()">
+                    <option value="">Nenhuma</option>
+                    <option value="semanal">Semanal</option>
+                </select>
+            </div>
+
+            <!-- Campo para o número de recorrências, visível apenas se a recorrência for semanal -->
+            <div id="num_recorrencias_field" style="display: none;">
+                <div class="form-group">
+                    <label for="num_recorrencias">Número de Recorrências:</label>
+                    <select id="num_recorrencias" name="num_recorrencias" disabled>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select id="status" name="status">
+                    <option value="ativo">Ativo</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+            </div>
+
+            <button type="submit">Criar Agendamento</button>
+        </form>
+
+        <div class="buttons">
+            <a href="{{ url_for('main.index') }}">
+                <button>Voltar</button>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
