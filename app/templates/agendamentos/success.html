@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamento Criado</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Agendamento Criado com Sucesso!</h2>
+
+        <div class="buttons">
+            <a href="{{ url_for('main.index') }}"><button>Voltar ao Início</button></a>
+            <a href="{{ url_for('main.criar_agendamento') }}"><button>Adicionar Novo Agendamento</button></a>
+        </div>
+
+        <h3>Detalhes do Agendamento</h3>
+        {% for agendamento in agendamentos %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Serviço</th>
+                        <th>Data e Hora</th>
+                        <th>Status</th>
+                        <th>Recorrência</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ agendamento.cliente_nome }}</td>
+                        <td>{{ agendamento.servico_nome }}</td>
+                        <td>{{ agendamento.data_hora }}</td>
+                        <td>{{ agendamento.status }}</td>
+                        <td>{{ agendamento.recorrencia if agendamento.recorrencia else 'Nenhuma' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        {% endfor %}
+    </div>
+</body>
+</html>

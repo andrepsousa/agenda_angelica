@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Agendamento</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2>Editar Agendamento</h2>
+
+    <form method="POST">
+        <label for="data_hora">Data e Hora:</label>
+        <input type="datetime-local" name="data_hora" value="{{ agendamento.data_hora }}" required>
+        
+        <label for="recorrencia">Recorrência:</label>
+        <input type="text" name="recorrencia" value="{{ agendamento.recorrencia }}">
+    
+        <label for="status">Status:</label>
+        <input type="text" name="status" value="{{ agendamento.status }}">
+    
+        <button type="submit">Atualizar Agendamento</button>
+    </form>    
+
+    <a href="{{ url_for('main.get_agendamentos_id', id_agendamento=agendamento.id) }}">Cancelar</a>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deletar Agendamento</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Tem certeza que deseja excluir este agendamento?</h2>
+
+        <div class="agendamento-details">
+            <p><strong>ID:</strong> {{ agendamento.id }}</p>
+            <p><strong>Cliente ID:</strong> {{ agendamento.cliente_id }}</p>
+            <p><strong>Serviço ID:</strong> {{ agendamento.servico_id }}</p>
+            <p><strong>Data e Hora:</strong> {{ agendamento.data_hora }}</p>
+            <p><strong>Recorrência:</strong> {{ agendamento.recorrencia or 'Nenhuma' }}</p>
+            <p><strong>Status:</strong> {{ agendamento.status }}</p>
+        </div>
+
+        <form method="post">
+            <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+        </form>
+
+        <a href="{{ url_for('main.get_agendamentos_id', id_agendamento=agendamento.id) }}">
+            <button>Cancelar</button>
+        </a>
+    </div>
+</body>
+</html>

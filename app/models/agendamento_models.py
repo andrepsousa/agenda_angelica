@@ -22,7 +22,7 @@ def criar_agendamento_simples(data):
         raise ValueError("O cliente e o serviço são obrigatórios.")
     if data.get("status") != "ativo":
         raise ValueError("O serviço precisa estar ativo.")
-    
+
     recorrencia = data.get("recorrencia", None)
     novo_agendamento = Agendamento(
         cliente_id=data["cliente_id"],
@@ -42,33 +42,28 @@ def criar_agendamento_simples(data):
 
 
 def criar_agendamentos_recorrentes(data):
-    if not data.get("cliente_id") or not data.get("servico_id"):
-        raise ValueError("O cliente e o serviço são obrigatórios.")
-    if data.get("status") != "ativo":
-        raise ValueError("O serviço precisa estar ativo.")
-    data_hora = datetime.strptime(data["data_hora"], "%Y-%m-%d %H:%M:%S")
-    recorrencia = data.get("recorrencia")
-    repeticoes = int(data.get("repeticoes", 1))
+    # Assumimos que data['data_hora'] é do tipo datetime
+    data_hora = data["data_hora"]
+    cliente_id = data["cliente_id"]
+    servico_id = data["servico_id"]
+    status = data["status"]
+    num_recorrencias = data["num_recorrencias"]
 
-    agendamentos_criados = []
-    for i in range(repeticoes):
+    agendamentos = []
+    for i in range(num_recorrencias):  # Usa o número de recorrências fornecido pelo usuário
         novo_agendamento = Agendamento(
-            cliente_id=data["cliente_id"],
-            servico_id=data["servico_id"],
-            data_hora=data_hora +
-            timedelta(weeks=i) if recorrencia == "semanal" else data_hora,
-            recorrencia=recorrencia,
-            status=data["status"]
+            cliente_id=cliente_id,
+            servico_id=servico_id,
+            data_hora=data_hora + timedelta(weeks=i),
+            status=status
         )
-        db.session.add(novo_agendamento)
-        agendamentos_criados.append(novo_agendamento)
+        agendamentos.append(novo_agendamento)
 
-    try:
-        db.session.commit()
-        return [agendamento.to_dict() for agendamento in agendamentos_criados]
-    except Exception as e:
-        db.session.rollback()
-        raise ValueError(f"Erro ao criar agendamentos recorrentes: {e}")
+    # Salve os agendamentos no banco, se necessário
+    db.session.add_all(agendamentos)
+    db.session.commit()
+
+    return agendamentos
 
 
 def atualizar_agendamento(agendamento_id, novo_agendamento):

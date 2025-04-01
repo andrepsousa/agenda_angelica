@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Novo Serviço</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Criar Novo Serviço</h1>
+
+        <!-- Exibe as mensagens de erro ou sucesso -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Formulário para criar um novo serviço -->
+        <form action="{{ url_for('main.set_servico') }}" method="POST">
+            <div class="form-group">
+                <label for="nome">Nome do Serviço:</label>
+                <input type="text" id="nome" name="nome" required><br><br>
+            </div>
+
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <textarea id="descricao" name="descricao"></textarea><br><br>
+            </div>
+
+            <div class="form-group">
+                <label for="preco">Preço:</label>
+                <input type="number" id="preco" name="preco" step="0.01" required><br><br>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Ativo:</label>
+                <input type="checkbox" id="status" name="status" checked><br><br>
+            </div>
+
+            <button type="submit">Criar Serviço</button>
+        </form>
+
+        <div class="buttons">
+            <a href="{{ url_for('main.list_servicos') }}">
+                <button>Voltar para a Lista de Serviços</button>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

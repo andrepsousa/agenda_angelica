@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Serviço</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Detalhes do Serviço</h2>
+
+        {% if servico %}
+            <div class="service-details">
+                <p><strong>Nome:</strong> {{ servico.nome }}</p>
+                <p><strong>Descrição:</strong> {{ servico.descricao or 'Sem descrição disponível' }}</p>
+                <p><strong>Preço:</strong> R$ {{ servico.preco }}</p>
+                <p><strong>Status:</strong> {{ 'Ativo' if servico.status else 'Inativo' }}</p>
+            </div>
+        {% else %}
+            <p>Serviço não encontrado.</p>
+        {% endif %}
+
+        <div class="buttons">
+            <a href="{{ url_for('main.deletar_servico', id_servico=servico.id) }}" class="btn btn-danger">
+                <button>Excluir serviço</button>
+            </a>
+            <a href="{{ url_for('main.list_servicos') }}">
+                <button>Voltar para a lista de serviços</button>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

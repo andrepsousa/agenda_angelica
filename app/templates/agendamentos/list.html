@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Agendamentos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Lista de Agendamentos</h2>
+
+        <div class="buttons">
+            <a href="{{ url_for('main.criar_agendamento') }}"><button>Adicionar Novo Agendamento</button></a>
+            <a href="{{ url_for('main.index') }}"><button>Voltar ao Início</button></a>
+        </div>
+        {% if agendamentos %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Serviço</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agendamento in agendamentos %}
+                        <tr>
+                            <td>{{ agendamento.id }}</td>
+                            <td>{{ agendamento.cliente_nome }}</td>
+                            <td>{{ agendamento.servico_nome }}</td>
+                            <td>{{ agendamento.data_hora }}</td>
+                            <td>{{ agendamento.status }}</td>
+                            <td>
+                                <a href="{{ url_for('main.get_agendamentos_id', id_agendamento=agendamento.id) }}">
+                                    <button>Ver Detalhes</button>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Nenhum agendamento encontrado.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -51,7 +51,9 @@ class Agendamento(db.Model):
         return {
             'id': self.id,
             'cliente_id': self.cliente_id,
+            'cliente_nome': self.usuario.nome,
             'servico_id': self.servico_id,
+            'servico_nome': self.servico.nome,
             'data_hora': self.data_hora,
             'recorrencia': self.recorrencia,
             'status': self.status
