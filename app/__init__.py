@@ -1,9 +1,12 @@
 from flask import Flask
+from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import timedelta
 
+
+load_dotenv()
 db = SQLAlchemy()
 jwt = JWTManager()
 
