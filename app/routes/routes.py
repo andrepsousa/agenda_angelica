@@ -16,7 +16,7 @@ from app.models.user_models import listar_usuarios, usuarios_by_id, registrar_us
 
 main = Blueprint("main", __name__)
 
-
+# Página Inicial
 @main.route('/')
 def index():
     hoje = datetime.today().date()
@@ -25,7 +25,7 @@ def index():
     servicos = Service.query.all()
     return render_template('index.html', agendamentos=agendamentos_hoje, servicos=servicos)
 
-
+# Agendamentos
 @main.route('/agendamentos', methods=['GET'])
 def get_agendamentos():
     agendamentos = list_agendamentos()
@@ -135,7 +135,7 @@ def deletar_agendamento(id_agendamento):
         print(f"Erro ao tentar deletar agendamento: {e}")  # 🟢 Debug
         return render_template('agendamentos/error.html', erro="Erro interno no servidor"), 500
 
-
+# Serviços
 @main.route('/servicos', methods=['GET'])
 def list_servicos():
     servicos = listar_servicos()
@@ -242,7 +242,7 @@ def deletar_servico(id_servico):
 
         return redirect(url_for('main.list_servicos'))
 
-
+#Usuários
 @main.route('/usuarios', methods=["GET"])
 def get_usuarios():
     usuarios = listar_usuarios()
