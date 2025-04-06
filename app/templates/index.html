@@ -10,18 +10,18 @@
     <h1>Bem-vindo ao Sistema de Agendamento</h1>
 
     <div>
-        <a href="{{ url_for('main.criar_agendamento') }}">
+        <a href="{{ url_for('bp_agendamentos.criar_agendamento') }}">
             <button>Cadastrar Agendamento</button>
         </a>
-        <a href="{{ url_for('main.list_servicos') }}">
+        <a href="{{ url_for('servicos_bp.list_servicos') }}">
             <button>Ver Serviços</button>
         </a>
-        <a href="{{ url_for('main.get_agendamentos') }}">
+        <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
             <button>Ver Agendamentos</button>
         </a>
-        <a href="{{ url_for('main.get_usuarios') }}">
+        <a href="{{ url_for('usuarios_bp.get_usuarios') }}">
             <button>Usuários</button>
-        </a>
+        </a>        
     </div>
 
     <h2>Agendamentos para Hoje</h2>
@@ -61,7 +61,7 @@
                     <h3>{{ servico.nome }}</h3>
                     <p class="descricao">{{ servico.descricao }}</p>
                     <p class="preco">R$ {{ servico.preco }}</p>
-                    <a href="{{ url_for('main.service_detail', id_servico=servico.id) }}">
+                    <a href="{{ url_for('servicos_bp.service_detail', id_servico=servico.id) }}">
                         <button class="detalhes-btn">Ver Detalhes</button>
                     </a>
                 </div>
