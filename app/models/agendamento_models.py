@@ -1,4 +1,4 @@
-from app import db
+from app.config import db
 from app.models.models import Agendamento
 from datetime import datetime, timedelta
 
@@ -20,7 +20,7 @@ def agendamento_by_id(agendamento_id):
 def criar_agendamento_simples(data):
     if not data.get("cliente_id") or not data.get("servico_id"):
         raise ValueError("O cliente e o serviço são obrigatórios.")
-    if data.get("status") != "ativo":
+    if not data.get("status", True):  # Considera False como "não ativo"
         raise ValueError("O serviço precisa estar ativo.")
 
     recorrencia = data.get("recorrencia", None)
@@ -63,7 +63,8 @@ def criar_agendamentos_recorrentes(data):
     db.session.add_all(agendamentos)
     db.session.commit()
 
-    return agendamentos
+    return [a.to_dict() for a in agendamentos]
+
 
 
 def atualizar_agendamento(agendamento_id, novo_agendamento):
