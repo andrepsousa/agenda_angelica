@@ -35,7 +35,7 @@
                             <td>{{ agendamento.data_hora }}</td>
                             <td>{{ agendamento.status }}</td>
                             <td>
-                                <a href="{{ url_for('bp_agendamento.get_agendamentos_id', id_agendamento=agendamento.id) }}">
+                                <a href="{{ url_for('bp_agendamentos.get_agendamentos_id', id_agendamento=agendamento.id) }}">
                                     <button>Ver Detalhes</button>
                                 </a>
                             </td>

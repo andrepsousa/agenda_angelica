@@ -2,14 +2,24 @@ from app.config import db
 from datetime import datetime
 
 class User(db.Model):
-    __tablename__ = 'usuarios'
+    __tablename__ = "usuarios"
+
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
-    endereco = db.Column(db.String(150),nullable=False )
-    telefone = db.Column(db.String(15),nullable=False)
-    cpf = db.Column(db.String(11),unique=True, nullable=False)
+    endereco = db.Column(db.String(255))
+    telefone = db.Column(db.String(20), unique=True)
+    cpf = db.Column(db.String(14), unique=True)
     data_nascimento = db.Column(db.Date)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "nome": self.nome,
+            "endereco": self.endereco,
+            "telefone": self.telefone,
+            "cpf": self.cpf,
+            "data_nascimento": self.data_nascimento.strftime("%d-%m-%Y") if self.data_nascimento else None
+        }
 
 class Service(db.Model):
     __tablename__ = 'servicos'
@@ -35,13 +45,12 @@ class Service(db.Model):
 class Agendamento(db.Model):
     __tablename__ = 'agendamentos'
     id = db.Column(db.Integer, primary_key=True)
-    cliente_id = db.Column(db.Integer, db.ForeignKey(
-        'usuarios.id'), nullable=False)
-    servico_id = db.Column(db.Integer, db.ForeignKey(
-        'servicos.id'), nullable=False)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    servico_id = db.Column(db.Integer, db.ForeignKey('servicos.id'), nullable=False)
     data_hora = db.Column(db.DateTime, nullable=False)
     recorrencia = db.Column(db.String(20), nullable=True)
     status = db.Column(db.String(20), default='ativo')
+    observacoes = db.Column(db.Text, nullable=True) 
 
     usuario = db.relationship('User', backref='agendamentos')
     servico = db.relationship('Service', backref='agendamentos')
@@ -55,11 +64,12 @@ class Agendamento(db.Model):
             'servico_nome': self.servico.nome,
             'data_hora': self.data_hora,
             'recorrencia': self.recorrencia,
-            'status': self.status
+            'status': self.status,
+            'observacoes': self.observacoes  
         }
 
     def __repr__(self):
         return (
             f"<Agendamento {self.data_hora} - Recorrência: {self.recorrencia} "
-            f"- Status: {self.status}>"
+            f"- Status: {self.status} - Obs: {self.observacoes}>"
         )

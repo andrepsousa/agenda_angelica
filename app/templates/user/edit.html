@@ -17,8 +17,7 @@
         <p style="color: red;">{{ erro }}</p>
     {% endif %}
 
-    <form action="{{ url_for('main.editar_usuario', id_usuarios=usuario.id) }}" method="POST">
-        <input type="hidden" name="_method" value="PUT"> <!-- Aqui indicamos que é um PUT -->
+    <form action="{{ url_for('usuarios_bp.atualizar_usuario_por_id', id=usuario.id) }}" method="POST">
 
         <label for="nome">Nome:</label>
         <input type="text" id="nome" name="nome" value="{{ usuario.nome }}" required>
@@ -38,6 +37,6 @@
         <button type="submit">Atualizar</button>
     </form>
 
-    <a href="{{ url_for('main.get_usuarios') }}" class="botao-voltar">Voltar para a Lista</a>
+    <a href="{{ url_for('usuarios_bp.listar_usuarios') }}" class="botao-voltar">Voltar para a Lista</a>
 </body>
 </html>

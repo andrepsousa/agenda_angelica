@@ -1,11 +1,11 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, render_template
 
 main_bp = Blueprint('main_bp', __name__, url_prefix='/inicio')
 
-@main_bp.route('/')
+@main_bp.route('/index')
 def index():
-    return jsonify({"message": "Bem-vindo a API!"})
+    return render_template('index.html')  
 
 @main_bp.route('/sobre')
 def sobre():
-    return jsonify({"message": "Informações sobre a API"})
+    return render_template('sobre.html')

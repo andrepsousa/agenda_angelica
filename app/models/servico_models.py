@@ -4,28 +4,30 @@ from app.models.models import Service
 
 def listar_servicos():
     servicos = Service.query.all()
-    result = [servico.to_dict() for servico in servicos]
-    print("Serviços:", result)
-    return result
+    return [servico.to_dict() for servico in servicos]
 
 
-def servicos_by_id(servico_id):
-    servico = Service.query.get(servico_id)
-    if servico:
-        return servico.to_dict()
-    raise ValueError("Serviço não encontrado.")
+def servico_by_id_dict(id):
+    servico = Service.query.get(id)
+    if not servico:
+        raise ValueError("Serviço não encontrado.")
+    return servico.to_dict()
 
+def servico_by_id_obj(id):
+    servico = Service.query.get(id)
+    if not servico:
+        raise ValueError("Serviço não encontrado.")
+    return servico
 
 def criar_servico(data):
     if not data.get("nome") or not data.get("preco"):
         raise ValueError("O nome e o preço são obrigatórios.")
-    if "status" not in data:
-        data["status"] = True
+
     novo_servico = Service(
         nome=data["nome"],
         descricao=data.get("descricao", ""),
         preco=data["preco"],
-        status=data["status"]
+        status=data.get("status", True)  # padrão ativo
     )
 
     try:
@@ -55,7 +57,7 @@ def atualizar_servico(servico_id, data):
         raise ValueError(f"Erro ao atualizar serviço: {e}")
 
 
-def delete_servico(servico_id):
+def deletar_servico(servico_id):
     servico = Service.query.get(servico_id)
     if not servico:
         raise ValueError("Serviço não encontrado.")
@@ -66,4 +68,4 @@ def delete_servico(servico_id):
         return servico.to_dict()
     except Exception as e:
         db.session.rollback()
-        raise ValueError(f"Erro ao deletar derviço: {e}")
+        raise ValueError(f"Erro ao deletar serviço: {e}")

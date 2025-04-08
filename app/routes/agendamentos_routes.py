@@ -23,7 +23,6 @@ def get_agendamentos_id(id_agendamento):
     except ValueError as e:
         return render_template('agendamentos/error.html', erro=str(e)), 404
 
-
 @bp_agendamentos.route('/novo', methods=['GET', 'POST'])
 def criar_agendamento():
     if request.method == 'GET':
@@ -31,15 +30,16 @@ def criar_agendamento():
         servicos = Service.query.filter_by(status=True).all()
         return render_template('agendamentos/create.html', clientes=clientes, servicos=servicos)
 
-    # Pegando os dados do formulário
     cliente_id = request.form.get("cliente_id")
     servico_id = request.form.get("servico_id")
-    # Data no formato 'YYYY-MM-DDTHH:MM'
+
     data_hora_str = request.form.get("data_hora")
     recorrencia = request.form.get("recorrencia", None)
-    # Número de recorrências, padrão 1
+
     num_recorrencias = int(request.form.get("num_recorrencias", 1))
     status = request.form.get("status", "ativo")
+
+    observacoes = request.form.get("observacoes", "")
 
     try:
         # Converte a data_hora para o formato datetime
@@ -51,7 +51,8 @@ def criar_agendamento():
             "data_hora": data_hora,
             "recorrencia": recorrencia,
             "num_recorrencias": num_recorrencias,
-            "status": status
+            "status": status,
+            "observacoes": observacoes
         }
 
         if recorrencia:
@@ -101,23 +102,18 @@ def editar_agendamento(id_agendamento):
 @bp_agendamentos.route('/<int:id_agendamento>/delete', methods=['GET', 'POST'])
 def deletar_agendamento(id_agendamento):
     try:
-        print(f"Tentando acessar agendamento {id_agendamento}")  # 🟢 Debug
         agendamento = Agendamento.query.get(id_agendamento)
 
         if not agendamento:
-            print("Erro: Agendamento não encontrado!")  # 🟢 Debug
             raise ValueError("Agendamento não encontrado!")
 
         if request.method == 'POST':
-            print(f"Deletando agendamento {id_agendamento}")  # 🟢 Debug
             delete_agendamento(id_agendamento)
-            return redirect(url_for('agendamentos.get_agendamentos'))
+            return redirect(url_for("bp_agendamentos.get_agendamentos"))
 
         return render_template('agendamentos/delete.html', agendamento=agendamento)
 
     except ValueError as e:
-        print(f"Erro de valor: {e}")  # 🟢 Debug
         return render_template('agendamentos/error.html', erro=str(e)), 404
     except Exception as e:
-        print(f"Erro ao tentar deletar agendamento: {e}")  # 🟢 Debug
         return render_template('agendamentos/error.html', erro="Erro interno no servidor"), 500
