@@ -21,8 +21,10 @@ def get_servicos():
     except Exception as e:
         flash(f'Erro ao carregar serviços: {e}', 'danger')
         return render_template('servicos/list.html', servicos=[])
-    
+
 # Página de detalhe de um serviço
+
+
 @servicos_bp.route('/<int:id>', methods=['GET'])
 def get_servico_por_id(id):
     try:
@@ -39,6 +41,8 @@ def get_servico():
     return render_template('servicos/create.html')
 
 # Criação de serviço (POST)
+
+
 @servicos_bp.route('/', methods=['POST'])
 def post_servico():
     try:
@@ -50,19 +54,21 @@ def post_servico():
         }
 
         criar_servico(data)
-        flash("Serviço criado com sucesso!", "success")
+        flash("Serviço criado com sucesso!", "servico_create_success")
         return redirect(url_for('servicos_bp.get_servicos'))
 
     except Exception as e:
-        flash(f"Erro ao criar serviço: {e}", "danger")
-        return redirect(url_for('servicos_bp.get_servico'))
+        flash(f"Erro ao criar serviço: {e}", "servico_create_error")
+        return redirect(url_for('servicos_bp.get_servicos'))
+
 
 @servicos_bp.route('/editar/<int:id_servico>', methods=['GET', 'POST'])
 def editar_servico(id_servico):
     try:
         servico = servico_by_id_obj(id_servico)
     except Exception as e:
-        flash(f'Serviço não encontrado: {e}', 'danger')
+        # categoria específica
+        flash(f'Serviço não encontrado: {e}', 'servico_error')
         return redirect(url_for('servicos_bp.get_servicos'))
 
     if request.method == 'POST':
@@ -75,9 +81,11 @@ def editar_servico(id_servico):
 
         try:
             atualizar_servico(id_servico, data)
-            flash("Serviço atualizado com sucesso!", "success")
+            flash("Serviço atualizado com sucesso!",
+                  "servico_success")  # categoria específica
         except Exception as e:
-            flash(f"Erro ao atualizar serviço: {e}", "danger")
+            # categoria específica
+            flash(f"Erro ao atualizar serviço: {e}", "servico_error")
 
         return redirect(url_for('servicos_bp.get_servicos'))
 

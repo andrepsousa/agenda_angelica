@@ -13,11 +13,14 @@
             {% if messages %}
                 <ul>
                     {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
+                        {% if category.startswith('servico_') %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endif %}
                     {% endfor %}
                 </ul>
             {% endif %}
         {% endwith %}
+
 
         <form action="{{ url_for('servicos_bp.editar_servico', id_servico=servico.id) }}" method="POST">
             <div class="form-group">
@@ -47,6 +50,12 @@
         <a href="{{ url_for('servicos_bp.get_servicos') }}">
             <button>Cancelar</button>
         </a>
+        <form action="{{ url_for('servicos_bp.delete_servico', id=servico.id) }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir este serviço?');">
+                Excluir Serviço
+            </button>
+        </form>
+        
     </div>
 </body>
 </html>

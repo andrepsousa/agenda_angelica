@@ -27,7 +27,7 @@
         {% endwith %}
 
         <!-- Formulário para deletar o serviço -->
-        <form action="{{ url_for('servicos_bp.deletar_servico', id_servico=servico['id']) }}" method="POST"
+        <form action="{{ url_for('servicos_bp.delete_servico', id=servico['id']) }}" method="POST"
               onsubmit="return confirm('Tem certeza que deseja excluir este serviço?');">
             <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
         </form>
