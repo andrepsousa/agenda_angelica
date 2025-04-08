@@ -31,7 +31,7 @@
                     <tr>
                         <td>{{ agendamento.cliente_nome }}</td>
                         <td>{{ agendamento.servico_nome }}</td>
-                        <td>{{ agendamento.data_hora }}</td>
+                        <p><strong>Data e Hora:</strong> {{ agendamento.data_hora.strftime('%d/%m/%Y %H:%M') }}</p>
                         <td>{{ agendamento.status }}</td>
                         <td>{{ agendamento.recorrencia if agendamento.recorrencia else 'Nenhuma' }}</td>
                     </tr>
