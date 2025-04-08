@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask,redirect,url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from app.routes.main_routes import main_bp
@@ -23,4 +23,7 @@ def create_app():
     app.register_blueprint(servicos_bp)
     app.register_blueprint(usuarios_bp)
 
+    @app.route('/')
+    def index():
+        return redirect(url_for('main_bp.index'))
     return app
