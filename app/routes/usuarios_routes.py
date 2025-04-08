@@ -33,31 +33,36 @@ def obter_usuario(id):
         return redirect(url_for('usuarios_bp.listar_usuarios'))
 
 
-# Página de formulário de criação de usuário
 @usuarios_bp.route('/novo', methods=['GET'])
 def novo_usuario_form():
-    return render_template('user/create.html')
+    return render_template('user/create.html', erros=None, valores={})
 
 
 # POST - Criação de novo usuário
 @usuarios_bp.route('/', methods=['POST'])
 def criar_novo_usuario():
-    try:
-        data = {
-            "nome": request.form.get("nome"),
-            "endereco": request.form.get("endereco"),
-            "telefone": request.form.get("telefone"),
-            "cpf": request.form.get("cpf"),
-            "data_nascimento": request.form.get("data_nascimento")
-        }
+    data = {
+        "nome": request.form.get("nome"),
+        "endereco": request.form.get("endereco"),
+        "telefone": request.form.get("telefone"),
+        "cpf": request.form.get("cpf"),
+        "data_nascimento": request.form.get("data_nascimento")
+    }
 
+    try:
         criar_usuario(data)
         flash("Usuário criado com sucesso!", "success")
         return redirect(url_for('usuarios_bp.listar_usuarios'))
 
-    except Exception as e:
-        flash(f"Erro ao criar usuário: {e}", "danger")
-        return redirect(url_for('usuarios_bp.novo_usuario_form'))
+    except ValueError as e:
+        # Aqui esperamos um dicionário de erros
+        if isinstance(e.args[0], dict):
+            return render_template('user/create.html', erros=e.args[0], valores=data)
+
+        else:
+            flash(f"Erro inesperado: {e}", "danger")
+            return redirect(url_for('usuarios_bp.novo_usuario_form'))
+
 
 
 # Página de atualização de usuário (GET)
@@ -102,5 +107,3 @@ def deletar_usuario_por_id(id):
     except Exception as e:
         flash(f"Erro ao remover usuário: {e}", "danger")
     return redirect(url_for('usuarios_bp.listar_usuarios'))
-
-
