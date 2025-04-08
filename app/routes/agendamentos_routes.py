@@ -1,12 +1,45 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash
-from datetime import datetime
+from datetime import datetime, time
 from app.models.models import Agendamento, User, Service
 from app.models.agendamento_models import (
     agendamento_by_id, list_agendamentos, criar_agendamento_simples,
     criar_agendamentos_recorrentes, delete_agendamento, atualizar_agendamento
 )
 
-bp_agendamentos = Blueprint('bp_agendamentos', __name__, url_prefix='/agendamentos')
+
+bp_agendamentos = Blueprint(
+    'bp_agendamentos', __name__, url_prefix='/agendamentos')
+
+
+@bp_agendamentos.route('/horarios', methods=['GET', 'POST'])
+def horarios():
+    mensagem = " "
+
+    todos_horarios = [f"{hora:02}: 00" for hora in range(10, 18)]
+
+    horarios_agendados = [a.horario for a in Agendamento.query.all()]
+
+    horarios_disponiveis = [
+        h for h in todos_horarios if h not in horarios_agendados]
+
+    if request.method == "POST":
+        horario = request.form.get('horario')
+
+        if not horario:
+            mensagem = "Por favor, selecione um horario."
+        elif horario not in horarios_disponiveis:
+            mensagem = f"O horário {horario} não está mais disponivel."
+        else:
+            novo_agendamento = Agendamento(horario=horario)
+            db.session.add(novo_agendamento)
+            db.session.commit()
+            mensagem = f"Agendamento para {horario} realizado com sucesso!"
+
+            horarios_agendados = [a.horario for a in Agendamento.query.all()]
+            horarios_disponiveis = [
+                h for h in todos_horarios if h not in horarios_agendados]
+
+        return render_template('agendamentos/detail.html', horarios=horarios_disponiveis, mensagem=mensagem)
 
 
 @bp_agendamentos.route('/', methods=['GET'])
@@ -22,6 +55,7 @@ def get_agendamentos_id(id_agendamento):
         return render_template('agendamentos/detail.html', agendamento=agendamento)
     except ValueError as e:
         return render_template('agendamentos/error.html', erro=str(e)), 404
+
 
 @bp_agendamentos.route('/novo', methods=['GET', 'POST'])
 def criar_agendamento():
