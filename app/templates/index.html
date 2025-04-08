@@ -10,16 +10,16 @@
     <h1>Bem-vindo ao Sistema de Agendamento</h1>
 
     <div>
-        <a href="{{ url_for('bp_agendamentos.criar_agendamento') }}">
+        <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
             <button>Cadastrar Agendamento</button>
         </a>
-        <a href="{{ url_for('servicos_bp.list_servicos') }}">
+        <a href="{{ url_for('servicos_bp.get_servicos') }}">
             <button>Ver Serviços</button>
         </a>
         <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
             <button>Ver Agendamentos</button>
         </a>
-        <a href="{{ url_for('usuarios_bp.get_usuarios') }}">
+        <a href="{{ url_for('usuarios_bp.listar_usuarios') }}">
             <button>Usuários</button>
         </a>        
     </div>
@@ -53,24 +53,23 @@
     </div>
 
     <h2>Serviços Disponíveis</h2>
-<div class="servicos-container">
-    {% if servicos %}
-        <div class="servicos">
-            {% for servico in servicos %}
-                <div class="servico-card">
-                    <h3>{{ servico.nome }}</h3>
-                    <p class="descricao">{{ servico.descricao }}</p>
-                    <p class="preco">R$ {{ servico.preco }}</p>
-                    <a href="{{ url_for('servicos_bp.service_detail', id_servico=servico.id) }}">
-                        <button class="detalhes-btn">Ver Detalhes</button>
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>Não há serviços cadastrados no momento.</p>
-    {% endif %}
-</div>
-
+    <div class="servicos-container">
+        {% if servicos %}
+            <div class="servicos">
+                {% for servico in servicos %}
+                    <div class="servico-card">
+                        <h3>{{ servico.nome }}</h3>
+                        <p class="descricao">{{ servico.descricao }}</p>
+                        <p class="preco">R$ {{ servico.preco }}</p>
+                        <a href="{{ url_for('servicos_bp.obter_servicos', id_servico=servico.id) }}">
+                            <button class="detalhes-btn">Ver Detalhes</button>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Não há serviços cadastrados no momento.</p>
+        {% endif %}
+    </div>
 </body>
 </html>

@@ -18,6 +18,7 @@
                 <p><strong>Data e Hora:</strong> {{ agendamento.data_hora }}</p>
                 <p><strong>Recorrência:</strong> {{ agendamento.recorrencia or 'Nenhuma' }}</p>
                 <p><strong>Status:</strong> {{ agendamento.status }}</p>
+                <p><strong>Observações:</strong> {{ agendamento.observacoes}}</p>
             </div>
         {% else %}
             <p>Agendamento não encontrado.</p>
@@ -25,11 +26,11 @@
 
         <div class="buttons">
             <!-- Redireciona para a página de confirmação -->
-            <a href="{{ url_for('bp_agendamento.deletar_agendamento', id_agendamento=agendamento.id) }}" class="btn btn-danger">
+            <a href="{{ url_for('bp_agendamentos.deletar_agendamento', id_agendamento=agendamento.id) }}" class="btn btn-danger">
                 <button>Excluir Agendamento</button>
             </a>
 
-            <a href="{{ url_for('bp_agendamento.get_agendamentos') }}">
+            <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
                 <button>Voltar para a Lista de Agendamentos</button>
             </a>
         </div>

@@ -10,7 +10,6 @@
     <div class="container">
         <h1>Criar Novo Serviço</h1>
 
-        <!-- Exibe as mensagens de erro ou sucesso -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <ul>
@@ -21,8 +20,7 @@
             {% endif %}
         {% endwith %}
 
-        <!-- Formulário para criar um novo serviço -->
-        <form action="{{ url_for('main.set_servico') }}" method="POST">
+        <form action="{{ url_for('servicos_bp.post_servico') }}" method="POST">
             <div class="form-group">
                 <label for="nome">Nome do Serviço:</label>
                 <input type="text" id="nome" name="nome" required><br><br>
@@ -47,8 +45,8 @@
         </form>
 
         <div class="buttons">
-            <a href="{{ url_for('main.list_servicos') }}">
-                <button>Voltar para a Lista de Serviços</button>
+            <a href="{{ url_for('servicos_bp.get_servicos') }}">
+                <button type="button">Voltar para a Lista de Serviços</button>
             </a>
         </div>
     </div>

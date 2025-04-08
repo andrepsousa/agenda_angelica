@@ -1,109 +1,76 @@
 from app.config import db
 from app.models.models import User
+from datetime import datetime
 
 
 def listar_usuarios():
     usuarios = User.query.all()
-    usuarios_infos = [{"id": usuario.id,
-                       "nome": usuario.nome,
-                       "endereco": usuario.endereco,
-                       "telefone": usuario.telefone,
-                       "cpf": usuario.cpf,
-                       "data_nascimento": usuario.data_nascimento}
-                      for usuario in usuarios]
-    print("Usuários:", usuarios_infos)
-    return usuarios_infos
+    return [usuario.to_dict() for usuario in usuarios]
 
 
-def usuarios_by_id(id_usuario):
+def usuario_by_id(id_usuario):
     usuario = User.query.get(id_usuario)
     if usuario:
-        return {
-            "id": usuario.id,
-            "nome": usuario.nome,
-            "endereco": usuario.endereco,
-            "telefone": usuario.telefone,
-            "cpf": usuario.cpf,
-            "data_nascimento": usuario.data_nascimento
-        }
-    raise ValueError("Usuario não encontrado.")
+        return usuario.to_dict()
+    raise ValueError("Usuário não encontrado.")
 
 
-def registrar_user(novo_user, cpf, telefone):
-    if User.query.filter_by(cpf=cpf).first():
-        raise ValueError("Usuário já existe.")
-    if User.query.filter_by(telefone=telefone).first():
-        raise ValueError("Telefone cadastrado no sistema.")
+def criar_usuario(data):
 
-    novo_user = User(
-        nome=novo_user.get("nome"),
-        endereco=novo_user.get("endereco"),
-        telefone=novo_user.get("telefone"),
-        cpf=novo_user.get("cpf"),
-        data_nascimento=novo_user.get("data_nascimento")
+    if User.query.filter_by(cpf=data.get("cpf")).first():
+        raise ValueError("CPF já cadastrado.")
+    if User.query.filter_by(telefone=data.get("telefone")).first():
+        raise ValueError("Telefone já cadastrado.")
+
+    # Converte a data de nascimento para objeto date
+    data_nasc = datetime.strptime(data.get("data_nascimento"), "%Y-%m-%d").date()
+
+    novo_usuario = User(
+        nome=data.get("nome"),
+        endereco=data.get("endereco"),
+        telefone=data.get("telefone"),
+        cpf=data.get("cpf"),
+        data_nascimento=data_nasc
     )
 
-    db.session.add(novo_user)
-    db.session.commit()
-    return {"message": "Usuário registrado com sucesso!", "id": novo_user.id}
-
-
-def atualizar_user(id_usuario, novo_usuario):
-    usuario = User.query.get(id_usuario)
-    if not usuario:
-        raise ValueError("Usuário não cadastrado.")
-
-    print(f"Usuário encontrado: {usuario}")
-
-    usuario.nome = novo_usuario.get("nome", usuario.nome)
-    usuario.endereco = novo_usuario.get("endereco", usuario.endereco)
-    usuario.telefone = novo_usuario.get("telefone", usuario.telefone)
-    usuario.cpf = novo_usuario.get("cpf", usuario.cpf)
-    usuario.data_nascimento = novo_usuario.get(
-        "data_nascimento", usuario.data_nascimento)
-
     try:
+        db.session.add(novo_usuario)
         db.session.commit()
-
-        usuario_atualizado = {
-            "id": usuario.id,
-            "nome": usuario.nome,
-            "endereco": usuario.endereco,
-            "telefone": usuario.telefone,
-            "cpf": usuario.cpf,
-            "data_nascimento": usuario.data_nascimento
-        }
-
-        return usuario_atualizado
+        return {"message": "Usuário registrado com sucesso!", "id": novo_usuario.id}
     except Exception as e:
-
         db.session.rollback()
-        print(f"Erro ao tentar atualizar usuário: {e}")
-        raise ValueError("Erro ao tentar atualizar usuário. Verifique os dados ou tente novamente.")
+        raise ValueError(f"Erro ao registrar usuário: {e}")
 
 
-def deletar_user(id_usuario):
+def atualizar_usuario(id_usuario, data):
     usuario = User.query.get(id_usuario)
-
     if not usuario:
         raise ValueError("Usuário não encontrado.")
-    
+
+    usuario.nome = data.get("nome", usuario.nome)
+    usuario.endereco = data.get("endereco", usuario.endereco)
+    usuario.telefone = data.get("telefone", usuario.telefone)
+    usuario.cpf = data.get("cpf", usuario.cpf)
+    usuario.data_nascimento = data.get("data_nascimento", usuario.data_nascimento)
+
     try:
-        usuario_deletado = {
-            "id": usuario.id,
-            "nome": usuario.nome,
-            "endereco": usuario.endereco,
-            "telefone": usuario.telefone,
-            "cpf": usuario.cpf,
-            "data_nascimento": usuario.data_nascimento
-        }
-
-        db.session.delete(usuario)
         db.session.commit()
-
-        return usuario_deletado
-    
+        return usuario.to_dict()
     except Exception as e:
         db.session.rollback()
-        print(f"Erro ao tentar excluir usuario: {e}")
-        raise e
+        raise ValueError(f"Erro ao atualizar usuário: {e}")
+
+
+def deletar_usuario(id_usuario):
+    usuario = User.query.get(id_usuario)
+    if not usuario:
+        raise ValueError("Usuário não encontrado.")
+
+    try:
+        usuario_dict = usuario.to_dict()
+        db.session.delete(usuario)
+        db.session.commit()
+        return usuario_dict
+    except Exception as e:
+        db.session.rollback()
+        raise ValueError(f"Erro ao deletar usuário: {e}")

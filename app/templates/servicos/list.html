@@ -10,40 +10,48 @@
     <div class="container">
         <h1>Lista de Serviços</h1>
 
+        <!-- Botões de navegação -->
         <div class="buttons">
-            <a href="{{ url_for('main.set_servico') }}"><button>Adicionar Novo Serviço</button></a>
-            <a href="{{ url_for('main.index') }}"><button>Voltar ao Início</button></a>
+            <a href="{{ url_for('servicos_bp.get_servico') }}">
+                <button class="btn btn-primary">Adicionar Novo Serviço</button>
+            </a>
+            <a href="{{ url_for('main_bp.index') }}">
+                <button class="btn btn-secondary">Voltar ao Início</button>
+            </a>
         </div>
 
+        <!-- Verificação e exibição de serviços -->
         {% if servicos %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Descrição</th>
-                        <th>Preço</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for servico in servicos %}
-                        <tr class="servico">
-                            <td>{{ servico.nome }}</td>
-                            <td>{{ servico.descricao }}</td>
-                            <td>R$ {{ servico.preco }}</td>
-                            <td>{{ 'Ativo' if servico.status else 'Inativo' }}</td>
-                            <td>
-                                <a href="{{ url_for('main.service_detail', id_servico=servico.id) }}">
-                                    <button>Ver Detalhes</button>
-                                </a>
-                            </td>
+            <div class="table-responsive">
+                <table class="tabela-servicos">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Preço</th>
+                            <th>Status</th>
+                            <th>Ajustes</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for servico in servicos %}
+                            <tr class="servico">
+                                <td>{{ servico['nome'] }}</td>
+                                <td>{{ servico['descricao'] or 'Sem descrição' }}</td>
+                                <td>R$ {{ "%.2f"|format(servico['preco']) }}</td>
+                                <td>{{ 'Ativo' if servico['status'] else 'Inativo' }}</td>                                                                                             
+                                <td>
+                                    <a href="{{ url_for('servicos_bp.editar_servico', id_servico=servico['id']) }}">
+                                        <button class="btn btn-warning">Editar</button>
+                                    </a>                                                                           
+                                </td>                                
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% else %}
-            <p>Não há serviços cadastrados no momento.</p>
+            <p class="no-data">Não há serviços cadastrados no momento.</p>
         {% endif %}
     </div>
 </body>

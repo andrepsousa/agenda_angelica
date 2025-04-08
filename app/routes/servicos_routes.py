@@ -1,11 +1,95 @@
-from flask import Blueprint, jsonify
+# Imports organizados
+from flask import Blueprint, request, render_template, redirect, url_for, flash
+from app.models.servico_models import (
+    listar_servicos,
+    servico_by_id_dict,
+    servico_by_id_obj,
+    criar_servico,
+    deletar_servico,
+    atualizar_servico
+)
 
 servicos_bp = Blueprint('servicos_bp', __name__, url_prefix='/servicos')
 
-@servicos_bp.route('/', methods=['GET'])
-def listar_servicos():
-    return jsonify({"message": "Lista de serviços"})
 
-@servicos_bp.route('/servicos/<int:id>', methods=['GET'])
-def obter_servico(id):
-    return jsonify({"message": f"Detalhes do serviço {id}"})
+# Página que lista todos os serviços
+@servicos_bp.route('/todos', methods=['GET'])
+def get_servicos():
+    try:
+        servicos = listar_servicos()
+        return render_template('servicos/list.html', servicos=servicos)
+    except Exception as e:
+        flash(f'Erro ao carregar serviços: {e}', 'danger')
+        return render_template('servicos/list.html', servicos=[])
+    
+# Página de detalhe de um serviço
+@servicos_bp.route('/<int:id>', methods=['GET'])
+def get_servico_por_id(id):
+    try:
+        servico = servico_by_id_dict(id)
+        return render_template('servicos/detail.html', servico=servico)
+    except Exception as e:
+        flash(f'Serviço não encontrado: {e}', 'danger')
+        return redirect(url_for('servicos_bp.get_servicos'))
+
+
+# Formulário de criação de serviço (GET)
+@servicos_bp.route('/novo', methods=['GET'])
+def get_servico():
+    return render_template('servicos/create.html')
+
+# Criação de serviço (POST)
+@servicos_bp.route('/', methods=['POST'])
+def post_servico():
+    try:
+        data = {
+            "nome": request.form.get("nome"),
+            "descricao": request.form.get("descricao"),
+            "preco": float(request.form.get("preco")),
+            "status": bool(request.form.get("status"))
+        }
+
+        criar_servico(data)
+        flash("Serviço criado com sucesso!", "success")
+        return redirect(url_for('servicos_bp.get_servicos'))
+
+    except Exception as e:
+        flash(f"Erro ao criar serviço: {e}", "danger")
+        return redirect(url_for('servicos_bp.get_servico'))
+
+@servicos_bp.route('/editar/<int:id_servico>', methods=['GET', 'POST'])
+def editar_servico(id_servico):
+    try:
+        servico = servico_by_id_obj(id_servico)
+    except Exception as e:
+        flash(f'Serviço não encontrado: {e}', 'danger')
+        return redirect(url_for('servicos_bp.get_servicos'))
+
+    if request.method == 'POST':
+        data = {
+            "nome": request.form['nome'],
+            "descricao": request.form['descricao'],
+            "preco": float(request.form['preco']),
+            "status": 'status' in request.form
+        }
+
+        try:
+            atualizar_servico(id_servico, data)
+            flash("Serviço atualizado com sucesso!", "success")
+        except Exception as e:
+            flash(f"Erro ao atualizar serviço: {e}", "danger")
+
+        return redirect(url_for('servicos_bp.get_servicos'))
+
+    return render_template('servicos/edit.html', servico=servico)
+
+
+# Rota para deletar um serviço (por GET ou POST via botão no HTML)
+@servicos_bp.route('/deletar/<int:id>', methods=['POST'])
+def delete_servico(id):
+    try:
+        deletar_servico(id)
+        flash("Serviço deletado com sucesso!", "success")
+    except Exception as e:
+        flash(f"Erro ao deletar serviço: {e}", "danger")
+    return redirect(url_for('servicos_bp.get_servicos'))
