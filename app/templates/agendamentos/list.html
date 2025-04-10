@@ -11,9 +11,14 @@
         <h2>Lista de Agendamentos</h2>
 
         <div class="buttons">
-            <a href="{{ url_for('bp_agendamentos.criar_agendamento') }}"><button>Adicionar Novo Agendamento</button></a>
-            <a href="{{ url_for('main_bp.index') }}"><button>Voltar ao Início</button></a>
+            <a href="{{ url_for('bp_agendamentos.criar_agendamento') }}">
+                <button>Adicionar Novo Agendamento</button>
+            </a>
+            <a href="{{ url_for('main_bp.index') }}">
+                <button>Voltar ao Início</button>
+            </a>
         </div>
+
         {% if agendamentos %}
             <table>
                 <thead>
@@ -23,6 +28,7 @@
                         <th>Serviço</th>
                         <th>Data</th>
                         <th>Status</th>
+                        <th>Recorrência</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -34,6 +40,13 @@
                             <td>{{ agendamento.servico_nome }}</td>
                             <td>{{ agendamento.data_hora }}</td>
                             <td>{{ agendamento.status }}</td>
+                            <td>
+                                {% if agendamento.recorrencia %}
+                                    {{ agendamento.recorrencia }}
+                                {% else %}
+                                    Não há recorrência
+                                {% endif %}
+                            </td>
                             <td>
                                 <a href="{{ url_for('bp_agendamentos.get_agendamentos_id', id_agendamento=agendamento.id) }}">
                                     <button>Ver Detalhes</button>

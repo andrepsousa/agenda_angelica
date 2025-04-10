@@ -1,4 +1,3 @@
-from app.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 from flask import Flask,redirect,url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
@@ -7,14 +6,18 @@ from app.routes.agendamentos_routes import bp_agendamentos
 from app.routes.servicos_routes import servicos_bp
 from app.routes.usuarios_routes import usuarios_bp
 from app.config import db, jwt
+from dotenv import load_dotenv 
+import os
+
+load_dotenv()
 
 def create_app():
     app = Flask(__name__)
 
-    # Configurações
-    app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
-    app.config['JWT_SECRET_KEY'] = 'chave-jwt'
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
     db.init_app(app)
     jwt.init_app(app)
