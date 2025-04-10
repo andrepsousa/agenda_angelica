@@ -28,13 +28,28 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <!-- Primeira linha, com as informações do cliente e serviço -->
                     <tr>
-                        <td>{{ agendamento.cliente_nome }}</td>
-                        <td>{{ agendamento.servico_nome }}</td>
-                        <p><strong>Data e Hora:</strong> {{ agendamento.data_hora.strftime('%d/%m/%Y %H:%M') }}</p>
+                        <td rowspan="{{ agendamento.recorrencias|length + 1 }}">{{ agendamento.cliente_nome }}</td>
+                        <td rowspan="{{ agendamento.recorrencias|length + 1 }}">{{ agendamento.servico_nome }}</td>
+                        <td>{{ agendamento.data_hora.strftime('%d/%m/%Y %H:%M') }}</td> 
                         <td>{{ agendamento.status }}</td>
-                        <td>{{ agendamento.recorrencia if agendamento.recorrencia else 'Nenhuma' }}</td>
+                        <td rowspan="{{ agendamento.recorrencias|length + 1 }}">
+                            {% if agendamento.recorrencia %}
+                                Recorrente ({{ agendamento.recorrencia }})
+                            {% else %}
+                                Nenhuma
+                            {% endif %}
+                        </td>
                     </tr>
+
+                    <!-- Linhas subsequentes para as datas de recorrência -->
+                    {% for recorrencia in agendamento.recorrencias %}
+                        <tr>
+                            <td>{{ recorrencia.strftime('%d/%m/%Y %H:%M') }}</td> <!-- Exibindo cada data de recorrência -->
+                            <td>{{ agendamento.status }}</td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         {% endfor %}
