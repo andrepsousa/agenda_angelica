@@ -1,3 +1,4 @@
+from app.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 from flask import Flask,redirect,url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
@@ -11,8 +12,8 @@ def create_app():
     app = Flask(__name__)
 
     # Configurações
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
-    app.config['SECRET_KEY'] = 'minha-chave-secreta'
+    app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
     app.config['JWT_SECRET_KEY'] = 'chave-jwt'
 
     db.init_app(app)
