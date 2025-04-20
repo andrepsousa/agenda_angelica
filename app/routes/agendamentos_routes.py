@@ -6,6 +6,7 @@ from app.models.agendamento_models import (
     criar_agendamentos_recorrentes, delete_agendamento, atualizar_agendamento
 )
 
+HORARIOS_VALIDOS = [time(h, 0) for h in range(10, 18)]
 
 bp_agendamentos = Blueprint(
     'bp_agendamentos', __name__, url_prefix='/agendamentos')
@@ -15,31 +16,47 @@ bp_agendamentos = Blueprint(
 def horarios():
     mensagem = " "
 
-    todos_horarios = [f"{hora:02}: 00" for hora in range(10, 18)]
+    # Gera a lista de horários válidos (10h às 18h)
+    todos_horarios = [f"{hora:02}:00" for hora in range(10, 19)]
 
-    horarios_agendados = [a.horario for a in Agendamento.query.all()]
+    # Extrai apenas a parte do horário (HH:MM) dos agendamentos existentes
+    horarios_agendados = [
+        a.data_hora.strftime('%H:%M') for a in Agendamento.query.all()
+    ]
 
     horarios_disponiveis = [
-        h for h in todos_horarios if h not in horarios_agendados]
+        h for h in todos_horarios if h not in horarios_agendados
+    ]
 
     if request.method == "POST":
         horario = request.form.get('horario')
 
         if not horario:
-            mensagem = "Por favor, selecione um horario."
+            mensagem = "Por favor, selecione um horário."
         elif horario not in horarios_disponiveis:
-            mensagem = f"O horário {horario} não está mais disponivel."
+            mensagem = f"O horário {horario} não está mais disponível."
         else:
-            novo_agendamento = Agendamento(horario=horario)
+            # Cria um datetime com data de hoje e o horário selecionado
+            hoje = datetime.now().date()
+            hora_selecionada = datetime.strptime(horario, '%H:%M').time()
+            data_hora = datetime.combine(hoje, hora_selecionada)
+
+            novo_agendamento = Agendamento(data_hora=data_hora)
             db.session.add(novo_agendamento)
             db.session.commit()
             mensagem = f"Agendamento para {horario} realizado com sucesso!"
 
-            horarios_agendados = [a.horario for a in Agendamento.query.all()]
+            # Atualiza os horários disponíveis
+            horarios_agendados = [
+                a.data_hora.strftime('%H:%M') for a in Agendamento.query.all()
+            ]
             horarios_disponiveis = [
-                h for h in todos_horarios if h not in horarios_agendados]
+                h for h in todos_horarios if h not in horarios_agendados
+            ]
 
         return render_template('agendamentos/detail.html', horarios=horarios_disponiveis, mensagem=mensagem)
+
+    return render_template('agendamentos/detail.html', horarios=horarios_disponiveis, mensagem=mensagem)
 
 
 @bp_agendamentos.route('/', methods=['GET'])
@@ -79,6 +96,17 @@ def criar_agendamento():
         # Converte a data_hora para o formato datetime
         data_hora = datetime.strptime(data_hora_str, '%Y-%m-%dT%H:%M')
 
+        # ✅ VALIDAÇÃO DO HORÁRIO
+        if data_hora.time() not in HORARIOS_VALIDOS:
+            erro = "Horário inválido. Escolha um horário inteiro entre 08:00 e 19:00."
+            raise ValueError(erro)
+
+        # ✅ VERIFICA SE O HORÁRIO JÁ FOI AGENDADO
+        horario_ocupado = Agendamento.query.filter_by(data_hora=data_hora).first()
+        if horario_ocupado:
+            erro = "Este horário já está agendado. Escolha outro."
+            raise ValueError(erro)
+
         data = {
             "cliente_id": cliente_id,
             "servico_id": servico_id,
@@ -97,7 +125,8 @@ def criar_agendamento():
         return render_template('agendamentos/success.html', agendamentos=agendamentos)
 
     except ValueError as e:
-        return render_template('agendamentos/create.html', erro="Erro no formato da data. Tente novamente.", clientes=User.query.all(), servicos=Service.query.filter_by(status=True).all())
+        erro = str(e)
+        return render_template('agendamentos/create.html', erro=erro, clientes=User.query.all(), servicos=Service.query.filter_by(status=True).all())
 
 
 @bp_agendamentos.route('/<int:id_agendamento>/editar', methods=['GET', 'POST'])
@@ -124,7 +153,7 @@ def editar_agendamento(id_agendamento):
 
             atualizar_agendamento(id_agendamento, dados)
             flash("Agendamento atualizado com sucesso!", "success")
-            return redirect(url_for('agendamentos.get_agendamentos'))
+            return redirect(url_for('bp_agendamentos.get_agendamentos'))
 
         except ValueError as e:
             flash(str(e), "danger")
