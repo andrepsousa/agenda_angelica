@@ -1,0 +1,100 @@
+/* Estilo geral da página */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #F5F5FF; /* Azul claro suave */
+    color: #4B0082; /* Roxo escuro */
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+/* Estilo do formulário */
+form {
+    max-width: 700px;
+    margin: 30px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: left;
+}
+
+/* Grupos de formulário */
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* Rótulos */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #4B0082;
+}
+
+/* Campos de entrada */
+select,
+input[type="date"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #D8BFD8;
+    border-radius: 5px;
+    background-color: #F8F8FF;
+    font-size: 14px;
+    color: #4B0082;
+}
+
+/* Estilo de foco */
+select:focus,
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: #9370DB;
+    background-color: #fff;
+}
+
+/* Textarea ajustável */
+textarea {
+    resize: vertical;
+}
+
+/* Botão de envio */
+button {
+    background-color: #9370DB;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    margin-top: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    display: block;
+    width: 100%;
+}
+
+/* Hover no botão */
+button:hover {
+    background-color: #7B68EE;
+}
+
+/* Campo de recorrência escondido por padrão */
+#num_recorrencias_field {
+    transition: all 0.3s ease;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    form {
+        padding: 20px;
+    }
+
+    button {
+        font-size: 14px;
+    }
+}
