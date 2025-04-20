@@ -6,7 +6,8 @@ from app.models.agendamento_models import (
     criar_agendamentos_recorrentes, delete_agendamento, atualizar_agendamento
 )
 
-HORARIOS_VALIDOS = [time(h, 0) for h in range(10, 18)]
+# Defina os horários válidos das 10:00 às 18:00 em intervalos de 1 hora
+HORARIOS_VALIDOS = [time(hour=h) for h in range(10, 19)]  # De 10:00 a 18:00
 
 bp_agendamentos = Blueprint(
     'bp_agendamentos', __name__, url_prefix='/agendamentos')
@@ -17,7 +18,7 @@ def horarios():
     mensagem = " "
 
     # Gera a lista de horários válidos (10h às 18h)
-    todos_horarios = [f"{hora:02}:00" for hora in range(10, 19)]
+    todos_horarios = [f"{hora:02}:00" for hora in range(10, 18)]
 
     # Extrai apenas a parte do horário (HH:MM) dos agendamentos existentes
     horarios_agendados = [
@@ -74,6 +75,8 @@ def get_agendamentos_id(id_agendamento):
         return render_template('agendamentos/error.html', erro=str(e)), 404
 
 
+from datetime import datetime, time
+
 @bp_agendamentos.route('/novo', methods=['GET', 'POST'])
 def criar_agendamento():
     if request.method == 'GET':
@@ -85,6 +88,8 @@ def criar_agendamento():
     servico_id = request.form.get("servico_id")
 
     data_hora_str = request.form.get("data_hora")
+    print(f"Data e hora recebida: {data_hora_str}")  # Verifique o valor capturado
+
     recorrencia = request.form.get("recorrencia", None)
 
     num_recorrencias = int(request.form.get("num_recorrencias", 1))
@@ -93,12 +98,16 @@ def criar_agendamento():
     observacoes = request.form.get("observacoes", "")
 
     try:
+        # Verifique se a data_hora foi fornecida
+        if not data_hora_str:
+            raise ValueError("Por favor, forneça a data e hora para o agendamento.")
+        
         # Converte a data_hora para o formato datetime
         data_hora = datetime.strptime(data_hora_str, '%Y-%m-%dT%H:%M')
 
         # ✅ VALIDAÇÃO DO HORÁRIO
         if data_hora.time() not in HORARIOS_VALIDOS:
-            erro = "Horário inválido. Escolha um horário inteiro entre 08:00 e 19:00."
+            erro = "Horário inválido. Escolha um horário inteiro entre 10:00 e 18:00."
             raise ValueError(erro)
 
         # ✅ VERIFICA SE O HORÁRIO JÁ FOI AGENDADO
@@ -107,6 +116,7 @@ def criar_agendamento():
             erro = "Este horário já está agendado. Escolha outro."
             raise ValueError(erro)
 
+        # Dados do agendamento
         data = {
             "cliente_id": cliente_id,
             "servico_id": servico_id,
@@ -117,6 +127,7 @@ def criar_agendamento():
             "observacoes": observacoes
         }
 
+        # Criação de agendamentos, seja único ou recorrente
         if recorrencia:
             agendamentos = criar_agendamentos_recorrentes(data)
         else:
