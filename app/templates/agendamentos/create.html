@@ -79,6 +79,8 @@
         <button type="submit">Criar Agendamento</button>
     </form>
     
+    <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}" class="btn-voltar">← Voltar</a>
+
     <script>
         // Função para mostrar/ocultar o campo de número de recorrências baseado na seleção de recorrência
         function toggleNumRecorrencias() {
@@ -113,4 +115,3 @@
     </script>    
 </body>
 </html>
-

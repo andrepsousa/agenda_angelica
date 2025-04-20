@@ -88,7 +88,6 @@ def criar_agendamento():
     servico_id = request.form.get("servico_id")
 
     data_hora_str = request.form.get("data_hora")
-    print(f"Data e hora recebida: {data_hora_str}")  # Verifique o valor capturado
 
     recorrencia = request.form.get("recorrencia", None)
 
