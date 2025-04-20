@@ -1,105 +1,116 @@
-<form action="{{ url_for('bp_agendamentos.criar_agendamento') }}" method="POST">
-    <div class="form-group">
-        <label for="cliente_id">Cliente:</label>
-        <select id="cliente_id" name="cliente_id" required>
-            {% for cliente in clientes %}
-                <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="servico_id">Serviço:</label>
-        <select id="servico_id" name="servico_id" required>
-            {% for servico in servicos %}
-                <option value="{{ servico.id }}">{{ servico.nome }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="data">Data:</label>
-        <input type="date" id="data" name="data" required>
-    </div>
-    
-    <div class="form-group">
-        <label for="hora">Hora:</label>
-        <select id="hora" name="hora" required>
-            <option value="">Selecione uma hora</option>
-            {% for hora in range(10, 19) %}
-                <option value="{{ "%02d:00" % hora }}">{{ "%02d:00" % hora }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <!-- Campo oculto para enviar data e hora combinados -->
-    <input type="hidden" id="data_hora" name="data_hora">
-
-    <div class="form-group">
-        <label for="recorrencia">Recorrência:</label>
-        <select id="recorrencia" name="recorrencia" onchange="toggleNumRecorrencias()">
-            <option value="">Nenhuma</option>
-            <option value="semanal">Semanal</option>
-        </select>
-    </div>
-
-    <div id="num_recorrencias_field" style="display: none;">
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Criar Agendamento</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='agendamentos/agendamentos.css') }}">
+</head>
+<body>
+    <form action="{{ url_for('bp_agendamentos.criar_agendamento') }}" method="POST">
         <div class="form-group">
-            <label for="num_recorrencias">Número de Recorrências:</label>
-            <select id="num_recorrencias" name="num_recorrencias" disabled>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
+            <label for="cliente_id">Cliente:</label>
+            <select id="cliente_id" name="cliente_id" required>
+                {% for cliente in clientes %}
+                    <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
+                {% endfor %}
             </select>
         </div>
-    </div>
-
-    <div class="form-group">
-        <label for="status">Status:</label>
-        <select id="status" name="status">
-            <option value="ativo">Ativo</option>
-            <option value="cancelado">Cancelado</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="observacoes">Observações:</label>
-        <textarea id="observacoes" name="observacoes" rows="4" cols="50" placeholder="Digite alguma observação..."></textarea>
-    </div>
     
-    <button type="submit">Criar Agendamento</button>
-</form>
-
-<script>
-    // Função para mostrar/ocultar o campo de número de recorrências baseado na seleção de recorrência
-    function toggleNumRecorrencias() {
-        var recorrenciaSelect = document.getElementById('recorrencia');
-        var numRecorrenciasField = document.getElementById('num_recorrencias_field');
-        var numRecorrenciasSelect = document.getElementById('num_recorrencias');
+        <div class="form-group">
+            <label for="servico_id">Serviço:</label>
+            <select id="servico_id" name="servico_id" required>
+                {% for servico in servicos %}
+                    <option value="{{ servico.id }}">{{ servico.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    
+        <div class="form-group">
+            <label for="data">Data:</label>
+            <input type="date" id="data" name="data" required>
+        </div>
         
-        if (recorrenciaSelect.value == 'semanal') {
-            numRecorrenciasField.style.display = 'block';  // Mostra o campo
-            numRecorrenciasSelect.disabled = false;  // Habilita o campo para edição
-        } else {
-            numRecorrenciasField.style.display = 'none';  // Esconde o campo
-            numRecorrenciasSelect.disabled = true;  // Desabilita o campo para não enviar valor
-        }
-    }
-
-    // Função para combinar a data e a hora no formato esperado antes de enviar o formulário
-    document.querySelector('form').addEventListener('submit', function(e) {
-        var data = document.getElementById('data').value;
-        var hora = document.getElementById('hora').value;
+        <div class="form-group">
+            <label for="hora">Hora:</label>
+            <select id="hora" name="hora" required>
+                <option value="">Selecione uma hora</option>
+                {% for hora in range(10, 19) %}
+                    <option value="{{ "%02d:00" % hora }}">{{ "%02d:00" % hora }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    
+        <!-- Campo oculto para enviar data e hora combinados -->
+        <input type="hidden" id="data_hora" name="data_hora">
+    
+        <div class="form-group">
+            <label for="recorrencia">Recorrência:</label>
+            <select id="recorrencia" name="recorrencia" onchange="toggleNumRecorrencias()">
+                <option value="">Nenhuma</option>
+                <option value="semanal">Semanal</option>
+            </select>
+        </div>
+    
+        <div id="num_recorrencias_field" style="display: none;">
+            <div class="form-group">
+                <label for="num_recorrencias">Número de Recorrências:</label>
+                <select id="num_recorrencias" name="num_recorrencias" disabled>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+        </div>
+    
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" name="status">
+                <option value="ativo">Ativo</option>
+                <option value="cancelado">Cancelado</option>
+            </select>
+        </div>
+    
+        <div class="form-group">
+            <label for="observacoes">Observações:</label>
+            <textarea id="observacoes" name="observacoes" rows="4" cols="50" placeholder="Digite alguma observação..."></textarea>
+        </div>
         
-        // Verifica se ambos os campos de data e hora foram preenchidos
-        if (data && hora) {
-            // Combina a data e a hora no formato correto
-            document.getElementById('data_hora').value = data + 'T' + hora;
-        } else {
-            // Impede o envio do formulário se algum dos campos não for preenchido
-            e.preventDefault();
-            alert("Por favor, forneça a data e hora para o agendamento.");
+        <button type="submit">Criar Agendamento</button>
+    </form>
+    
+    <script>
+        // Função para mostrar/ocultar o campo de número de recorrências baseado na seleção de recorrência
+        function toggleNumRecorrencias() {
+            var recorrenciaSelect = document.getElementById('recorrencia');
+            var numRecorrenciasField = document.getElementById('num_recorrencias_field');
+            var numRecorrenciasSelect = document.getElementById('num_recorrencias');
+            
+            if (recorrenciaSelect.value == 'semanal') {
+                numRecorrenciasField.style.display = 'block';  // Mostra o campo
+                numRecorrenciasSelect.disabled = false;  // Habilita o campo para edição
+            } else {
+                numRecorrenciasField.style.display = 'none';  // Esconde o campo
+                numRecorrenciasSelect.disabled = true;  // Desabilita o campo para não enviar valor
+            }
         }
-    });
-</script>
+    
+        // Função para combinar a data e a hora no formato esperado antes de enviar o formulário
+        document.querySelector('form').addEventListener('submit', function(e) {
+            var data = document.getElementById('data').value;
+            var hora = document.getElementById('hora').value;
+            
+            // Verifica se ambos os campos de data e hora foram preenchidos
+            if (data && hora) {
+                // Combina a data e a hora no formato correto
+                document.getElementById('data_hora').value = data + 'T' + hora;
+            } else {
+                // Impede o envio do formulário se algum dos campos não for preenchido
+                e.preventDefault();
+                alert("Por favor, forneça a data e hora para o agendamento.");
+            }
+        });
+    </script>    
+</body>
+</html>
+
