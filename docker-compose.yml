@@ -8,8 +8,11 @@ services:
       - POSTGRES_USER=balde
       - POSTGRES_PASSWORD=0710
       - POSTGRES_DB=agenda_angelica
+      - TZ=America/Sao_Paulo
     volumes:
       - data_db:/var/lib/postgresql/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
 
   web:
     build: .
@@ -22,6 +25,7 @@ services:
       - agenda_db
     environment:
       - DATABASE_URL=postgresql://balde:0710@agenda_db:5432/agenda_angelica
+      - TZ=America/Sao_Paulo
 
 volumes:
   data_db:
