@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Histórico de Agendamentos - {{ cliente.nome }}</h2>
+
+<table border="1" cellpadding="5">
+    <thead>
+        <tr>
+            <th>Serviço</th>
+            <th>Data e Hora</th>
+            <th>Status</th>
+            <th>Em Espera</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for agendamento in agendamentos %}
+        <tr>
+            <td>{{ agendamento.servico.nome }}</td>
+            <td>{{ agendamento.data_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>{{ agendamento.status }}</td>
+            <td>{{ 'Sim' if agendamento.em_espera else 'Não' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
