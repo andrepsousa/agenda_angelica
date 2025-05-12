@@ -1,4 +1,4 @@
-#!/home/frank/projetos/agenda_angelica/venv/bin/python3
+#!/home/balde/Documentos/projetos/agenda_angelica/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

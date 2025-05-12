@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Agenda Angelica</title>
+</head>
+<body>
+    <h2>Login</h2>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('auth_bp.login') }}" method="post">
+        <label for="telefone">Telefone (com DDD):</label><br>
+        <input type="text" id="telefone" name="telefone" required><br><br>
+
+        <label for="senha">Senha:</label><br>
+        <input type="password" id="senha" name="senha" required><br><br>
+
+        <button type="submit">Entrar</button>
+    </form>
+
+    <p>Ainda não tem conta? <a href="{{ url_for('auth_bp.register') }}">Cadastre-se</a></p>
+</body>
+</html>

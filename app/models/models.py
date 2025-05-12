@@ -1,15 +1,25 @@
 from app.config import db
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 class User(db.Model):
     __tablename__ = "usuarios"
 
     id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(100), nullable=False)
+    nome = db.Column(db.String(150), nullable=False)
     endereco = db.Column(db.String(255))
     telefone = db.Column(db.String(20), unique=True)
     cpf = db.Column(db.String(14), unique=True)
     data_nascimento = db.Column(db.Date)
+    role = db.Column(db.String(20), nullable=False, default='cliente')
+    password_hash = db.Column(db.String(128), nullable=False)
+
+    def set_password(self, senha):
+        self.password_hash = generate_password_hash(senha)
+
+    def check_password(self, senha):
+        return check_password_hash(self.password_hash, senha)
 
     def to_dict(self):
         return {
@@ -18,8 +28,14 @@ class User(db.Model):
             "endereco": self.endereco,
             "telefone": self.telefone,
             "cpf": self.cpf,
-            "data_nascimento": self.data_nascimento.strftime("%d-%m-%Y") if self.data_nascimento else None
+            "data_nascimento": self.data_nascimento.strftime("%d-%m-%Y") if
+            self.data_nascimento else None,
+            "role": self.role
         }
+
+    def __repr__(self):
+        return f"<User {self.nome}, Role: {self.role}>"
+
 
 class Service(db.Model):
     __tablename__ = 'servicos'
@@ -45,12 +61,14 @@ class Service(db.Model):
 class Agendamento(db.Model):
     __tablename__ = 'agendamentos'
     id = db.Column(db.Integer, primary_key=True)
-    cliente_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-    servico_id = db.Column(db.Integer, db.ForeignKey('servicos.id'), nullable=False)
+    cliente_id = db.Column(db.Integer, db.ForeignKey(
+        'usuarios.id'), nullable=False)
+    servico_id = db.Column(db.Integer, db.ForeignKey(
+        'servicos.id'), nullable=False)
     data_hora = db.Column(db.DateTime, nullable=False)
     recorrencia = db.Column(db.String(20), nullable=True)
     status = db.Column(db.String(20), default='ativo')
-    observacoes = db.Column(db.Text, nullable=True) 
+    observacoes = db.Column(db.Text, nullable=True)
 
     usuario = db.relationship('User', backref='agendamentos')
     servico = db.relationship('Service', backref='agendamentos')
@@ -65,7 +83,7 @@ class Agendamento(db.Model):
             'data_hora': self.data_hora,
             'recorrencia': self.recorrencia,
             'status': self.status,
-            'observacoes': self.observacoes  
+            'observacoes': self.observacoes
         }
 
     def __repr__(self):
