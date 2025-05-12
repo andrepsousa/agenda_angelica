@@ -64,7 +64,6 @@ def criar_novo_usuario():
             return redirect(url_for('usuarios_bp.novo_usuario_form'))
 
 
-
 # Página de atualização de usuário (GET)
 @usuarios_bp.route('/editar/<int:id>', methods=['GET'])
 def editar_usuario_form(id):
