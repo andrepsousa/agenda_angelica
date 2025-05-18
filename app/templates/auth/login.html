@@ -2,31 +2,46 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Agenda Angelica</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h2>Login</h2>
+    <header>
+        <h1>Login</h1>
+    </header>
 
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul>
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+    <div class="form-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
 
-    <form action="{{ url_for('auth_bp.login') }}" method="post">
-        <label for="telefone">Telefone (com DDD):</label><br>
-        <input type="text" id="telefone" name="telefone" required><br><br>
+        <form class="auth-form" action="{{ url_for('auth_bp.login') }}" method="post">
+            <div class="form-group">
+                <label for="telefone">Telefone (com DDD):</label>
+                <input type="text" id="telefone" name="telefone" required>
+            </div>
 
-        <label for="senha">Senha:</label><br>
-        <input type="password" id="senha" name="senha" required><br><br>
+            <div class="form-group">
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" name="senha" required>
+            </div>
 
-        <button type="submit">Entrar</button>
-    </form>
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Entrar</button>
+            </div>
+        </form>
 
-    <p>Ainda não tem conta? <a href="{{ url_for('auth_bp.register') }}">Cadastre-se</a></p>
+        <div class="auth-links">
+            <p>Ainda não tem conta? <a href="{{ url_for('auth_bp.register') }}">Cadastre-se</a></p>
+            <a href="{{ url_for('main_bp.index') }}">Página inicial</a>
+        </div>
+    </div>
 </body>
 </html>

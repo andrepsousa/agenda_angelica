@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template
 from datetime import date, datetime, timedelta
 from app.models.models import Agendamento, Service
+from flask_login import login_user, logout_user, login_required, current_user
 
 main_bp = Blueprint('main_bp', __name__, url_prefix='/inicio')
 

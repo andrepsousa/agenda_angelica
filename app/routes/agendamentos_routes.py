@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash
+from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime, time
+from app.config import db
 from app.models.models import Agendamento, User, Service
 from app.models.agendamento_models import (
     agendamento_by_id, list_agendamentos, criar_agendamento_simples,
@@ -61,9 +63,26 @@ def horarios():
 
 
 @bp_agendamentos.route('/', methods=['GET'])
+@login_required
 def get_agendamentos():
-    agendamentos = list_agendamentos()
-    return render_template('agendamentos/list.html', agendamentos=agendamentos)
+    # Filtra agendamentos conforme o tipo de usuário
+    if current_user.role == 'cliente':
+        agendamentos = Agendamento.query.filter_by(
+            cliente_id=current_user.id).all()
+    else:
+        agendamentos = Agendamento.query.all()
+
+    # Formata os dados para o template
+    agendamentos_json = [{
+        'id': ag.id,
+        'cliente_nome': ag.usuario.nome,
+        'servico_nome': ag.servico.nome,
+        'data_hora': ag.data_hora.strftime('%d/%m/%Y %H:%M'),
+        'status': ag.status,
+        'recorrencia': ag.recorrencia
+    } for ag in agendamentos]
+
+    return render_template('agendamentos/list.html', agendamentos=agendamentos_json)
 
 
 @bp_agendamentos.route('/<int:id_agendamento>', methods=['GET'])
@@ -75,45 +94,64 @@ def get_agendamentos_id(id_agendamento):
         return render_template('agendamentos/error.html', erro=str(e)), 404
 
 
-from datetime import datetime, time
+@bp_agendamentos.route('/hoje')
+@login_required
+def agendamentos_hoje():
+    hoje = datetime.now().date()
+
+    if current_user.role == 'cliente':
+        agendamentos = Agendamento.query.filter(
+            Agendamento.cliente_id == current_user.id,
+            db.func.date(Agendamento.data_hora) == hoje
+        ).all()
+    else:
+        agendamentos = Agendamento.query.filter(
+            db.func.date(Agendamento.data_hora) == hoje
+        ).all()
+
+    return render_template('index.html', agendamentos=agendamentos)
+
 
 @bp_agendamentos.route('/novo', methods=['GET', 'POST'])
+@login_required
 def criar_agendamento():
     if request.method == 'GET':
         clientes = User.query.all()
         servicos = Service.query.filter_by(status=True).all()
-        return render_template('agendamentos/create.html', clientes=clientes, servicos=servicos)
-
-    cliente_id = request.form.get("cliente_id")
-    servico_id = request.form.get("servico_id")
-
-    data_hora_str = request.form.get("data_hora")
-
-    recorrencia = request.form.get("recorrencia", None)
-
-    num_recorrencias = int(request.form.get("num_recorrencias", 1))
-    status = request.form.get("status", "ativo")
-
-    observacoes = request.form.get("observacoes", "")
+        return render_template('agendamentos/create.html',
+                               clientes=clientes,
+                               servicos=servicos,
+                               current_user=current_user)
 
     try:
-        # Verifique se a data_hora foi fornecida
+        # Obtém os dados do formulário
+        data_hora_str = request.form.get("data_hora")
+        servico_id = request.form.get("servico_id")
+        observacoes = request.form.get("observacoes", "")
+        recorrencia = request.form.get("recorrencia", None)
+        num_recorrencias = int(request.form.get("num_recorrencias", 1))
+
+        # Define o cliente_id conforme o tipo de usuário
+        if current_user.role == 'cliente':
+            cliente_id = current_user.id
+            status = "ativo"  # Status fixo para clientes
+        else:
+            cliente_id = request.form.get("cliente_id")
+            status = request.form.get("status", "ativo")  # Admin pode definir
+
+        # Validações
         if not data_hora_str:
-            raise ValueError("Por favor, forneça a data e hora para o agendamento.")
-        
-        # Converte a data_hora para o formato datetime
+            raise ValueError(
+                "Por favor, forneça a data e hora para o agendamento.")
+
         data_hora = datetime.strptime(data_hora_str, '%Y-%m-%dT%H:%M')
 
-        # ✅ VALIDAÇÃO DO HORÁRIO
         if data_hora.time() not in HORARIOS_VALIDOS:
-            erro = "Horário inválido. Escolha um horário inteiro entre 10:00 e 18:00."
-            raise ValueError(erro)
+            raise ValueError(
+                "Horário inválido. Escolha um horário inteiro entre 10:00 e 18:00.")
 
-        # ✅ VERIFICA SE O HORÁRIO JÁ FOI AGENDADO
-        horario_ocupado = Agendamento.query.filter_by(data_hora=data_hora).first()
-        if horario_ocupado:
-            erro = "Este horário já está agendado. Escolha outro."
-            raise ValueError(erro)
+        if Agendamento.query.filter_by(data_hora=data_hora).first():
+            raise ValueError("Este horário já está agendado. Escolha outro.")
 
         # Dados do agendamento
         data = {
@@ -126,7 +164,7 @@ def criar_agendamento():
             "observacoes": observacoes
         }
 
-        # Criação de agendamentos, seja único ou recorrente
+        # Criação do agendamento
         if recorrencia:
             agendamentos = criar_agendamentos_recorrentes(data)
         else:
@@ -135,31 +173,42 @@ def criar_agendamento():
         return render_template('agendamentos/success.html', agendamentos=agendamentos)
 
     except ValueError as e:
-        erro = str(e)
-        return render_template('agendamentos/create.html', erro=erro, clientes=User.query.all(), servicos=Service.query.filter_by(status=True).all())
+        clientes = User.query.all()
+        servicos = Service.query.filter_by(status=True).all()
+        return render_template('agendamentos/create.html',
+                               erro=str(e),
+                               clientes=clientes,
+                               servicos=servicos,
+                               current_user=current_user)
 
 
 @bp_agendamentos.route('/<int:id_agendamento>/editar', methods=['GET', 'POST'])
+@login_required
 def editar_agendamento(id_agendamento):
-    agendamento = Agendamento.query.get(id_agendamento)
-
-    if not agendamento:
-        return render_template('agendamentos/error.html', erro="Agendamento não encontrado!"), 404
+    agendamento = Agendamento.query.get_or_404(id_agendamento)
 
     if request.method == 'GET':
         clientes = User.query.all()
         servicos = Service.query.filter_by(status=True).all()
-        return render_template('agendamentos/edit.html', agendamento=agendamento, clientes=clientes, servicos=servicos)
+        return render_template('agendamentos/edit.html',
+                               agendamento=agendamento,
+                               clientes=clientes,
+                               servicos=servicos,
+                               current_user=current_user)
 
     if request.method == 'POST':
         try:
             dados = {
-                "cliente_id": request.form.get("cliente_id"),
                 "servico_id": request.form.get("servico_id"),
                 "data_hora": datetime.strptime(request.form.get("data_hora"), '%Y-%m-%dT%H:%M'),
                 "recorrencia": request.form.get("recorrencia"),
-                "status": request.form.get("status")
+                "observacoes": request.form.get("observacoes", "")
             }
+
+            # Apenas admin pode alterar cliente_id e status
+            if current_user.role != 'cliente':
+                dados["cliente_id"] = request.form.get("cliente_id")
+                dados["status"] = request.form.get("status", "ativo")
 
             atualizar_agendamento(id_agendamento, dados)
             flash("Agendamento atualizado com sucesso!", "success")
@@ -169,7 +218,11 @@ def editar_agendamento(id_agendamento):
             flash(str(e), "danger")
             clientes = User.query.all()
             servicos = Service.query.filter_by(status=True).all()
-            return render_template('agendamentos/edit.html', agendamento=agendamento, clientes=clientes, servicos=servicos)
+            return render_template('agendamentos/edit.html',
+                                   agendamento=agendamento,
+                                   clientes=clientes,
+                                   servicos=servicos,
+                                   current_user=current_user)
 
 
 @bp_agendamentos.route('/<int:id_agendamento>/delete', methods=['GET', 'POST'])

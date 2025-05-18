@@ -7,6 +7,7 @@ from app.models.user_models import (
     atualizar_usuario,
     deletar_usuario
 )
+from flask_login import login_user, logout_user, login_required, current_user
 
 usuarios_bp = Blueprint('usuarios_bp', __name__, url_prefix='/usuarios')
 
