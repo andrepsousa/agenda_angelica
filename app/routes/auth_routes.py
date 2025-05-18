@@ -2,6 +2,7 @@ from flask import (
     Blueprint, render_template, request, flash,
     redirect, url_for, session
 )
+from flask_login import login_user, logout_user, login_required, current_user
 from app.models.models import User
 from app.config import db
 
@@ -34,17 +35,20 @@ def login():
         telefone = request.form['telefone']
         senha = request.form['senha']
         user = User.query.filter_by(telefone=telefone).first()
+
         if user and user.check_password(senha):
-            session['user_id'] = user.id
-            session['role'] = user.role
+            login_user(user)
             flash('Bem-vindo de volta!', 'success')
-            return redirect(url_for('main.index'))
-        flash('Telefone ou senha incorretos', 'danger')
+            return redirect(url_for('main_bp.index'))
+        else:
+            flash('Telefone ou senha incorretos', 'danger')
+
     return render_template('auth/login.html')
 
 
 @auth_bp.route('/logout')
+@login_required
 def logout():
-    session.clear()
+    logout_user()
     flash('Você saiu.', 'info')
     return redirect(url_for('auth_bp.login'))

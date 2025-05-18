@@ -7,14 +7,18 @@
 </head>
 <body>
     <form action="{{ url_for('bp_agendamentos.criar_agendamento') }}" method="POST">
-        <div class="form-group">
-            <label for="cliente_id">Cliente:</label>
-            <select id="cliente_id" name="cliente_id" required>
-                {% for cliente in clientes %}
-                    <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
-                {% endfor %}
-            </select>
-        </div>
+        {% if current_user.is_authenticated and current_user.role == 'cliente' %}
+            <input type="hidden" name="cliente_id" value="{{ current_user.id }}">
+        {% else %}
+            <div class="form-group">
+                <label for="cliente_id">Cliente:</label>
+                <select id="cliente_id" name="cliente_id" required>
+                    {% for cliente in clientes %}
+                        <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
     
         <div class="form-group">
             <label for="servico_id">Serviço:</label>
@@ -63,13 +67,17 @@
             </div>
         </div>
     
-        <div class="form-group">
-            <label for="status">Status:</label>
-            <select id="status" name="status">
-                <option value="ativo">Ativo</option>
-                <option value="cancelado">Cancelado</option>
-            </select>
-        </div>
+        {% if current_user.is_authenticated and current_user.role != 'cliente' %}
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select id="status" name="status">
+                    <option value="ativo">Ativo</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+            </div>
+        {% else %}
+            <input type="hidden" name="status" value="ativo">
+        {% endif %}
     
         <div class="form-group">
             <label for="observacoes">Observações:</label>
@@ -79,7 +87,12 @@
         <button type="submit">Criar Agendamento</button>
     </form>
     
-    <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}" class="btn-voltar">← Voltar</a>
+    <!-- Botão Voltar com comportamento condicional -->
+    {% if current_user.role == 'cliente' %}
+        <a href="{{ url_for('main_bp.index') }}" class="btn-voltar">← Voltar</a>
+    {% else %}
+        <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}" class="btn-voltar">← Voltar</a>
+    {% endif %}
 
     <script>
         // Função para mostrar/ocultar o campo de número de recorrências baseado na seleção de recorrência

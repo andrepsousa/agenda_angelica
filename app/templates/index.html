@@ -9,41 +9,69 @@
 <body>
     <header>
         <h1>Bem-vindo ao Sistema de Agendamento</h1>
+
+        {% if current_user.is_authenticated %}
+            <p>Olá, {{ current_user.nome }}!</p>
+            <a href="{{ url_for('auth_bp.logout') }}"><button>Logout</button></a>
+        {% else %}
+            <a href="{{ url_for('auth_bp.login') }}"><button>Login</button></a>
+            <a href="{{ url_for('auth_bp.register') }}"><button>Cadastro</button></a>
+        {% endif %}
     </header>
 
+    {% if current_user.is_authenticated %}
     <div class="button-container">
-        <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
+        <a href="{{ url_for('bp_agendamentos.criar_agendamento') }}">
             <button>Cadastrar Agendamento</button>
         </a>
         <a href="{{ url_for('servicos_bp.get_servicos') }}">
             <button>Ver Serviços</button>
         </a>
-        <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
-            <button>Ver Agendamentos</button>
-        </a>
-        <a href="{{ url_for('usuarios_bp.listar_usuarios') }}">
-            <button>Usuários</button>
-        </a>        
+        {% if current_user.role != 'cliente' %}
+            <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
+                <button>Ver Agendamentos</button>
+            </a>
+            <a href="{{ url_for('usuarios_bp.listar_usuarios') }}">
+                <button>Usuários</button>
+            </a>
+        {% else %}
+            <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
+                <button>Meus Agendamentos</button>
+            </a>
+        {% endif %}
     </div>
+    {% endif %}
 
-    <h2>Agendamentos para Hoje</h2>
+    <!-- Agendamentos para Hoje -->
+    {% if current_user.is_authenticated %}
+    <h2>
+        {% if current_user.role == 'cliente' %}
+            Meus Agendamentos para Hoje
+        {% else %}
+            Agendamentos para Hoje
+        {% endif %}
+    </h2>
     <div>
         {% if agendamentos %}
             <table>
                 <thead>
                     <tr>
-                        <th>Nome do Cliente</th>
+                        {% if current_user.role != 'cliente' %}
+                            <th>Cliente</th>
+                        {% endif %}
                         <th>Serviço</th>
-                        <th>Data e Hora</th>
+                        <th>Horário</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for agendamento in agendamentos %}
                         <tr>
-                            <td>{{ agendamento.usuario.nome }}</td>
+                            {% if current_user.role != 'cliente' %}
+                                <td>{{ agendamento.usuario.nome }}</td>
+                            {% endif %}
                             <td>{{ agendamento.servico.nome }}</td>
-                            <td>{{ agendamento.data_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>{{ agendamento.data_hora.strftime('%H:%M') }}</td>
                             <td>{{ agendamento.status }}</td>
                         </tr>
                     {% endfor %}
@@ -53,7 +81,9 @@
             <p>Não há agendamentos para hoje.</p>
         {% endif %}
     </div>
+    {% endif %}
 
+    <!-- Serviços Disponíveis -->
     <h2>Serviços Disponíveis</h2>
     <div class="servicos-container">
         {% if servicos %}
@@ -62,7 +92,7 @@
                     <div class="servico-card">
                         <h3>{{ servico.nome }}</h3>
                         <p class="descricao">{{ servico.descricao }}</p>
-                        <p class="preco">R$ {{ servico.preco }}</p>
+                        <p class="preco">R$ {{ "%.2f"|format(servico.preco) }}</p>
                         <a href="{{ url_for('servicos_bp.get_servicos', id_servico=servico.id) }}">
                             <button class="detalhes-btn">Ver Detalhes</button>
                         </a>

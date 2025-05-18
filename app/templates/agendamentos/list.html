@@ -8,7 +8,13 @@
 </head>
 <body>
     <div class="container">
-        <h2>Lista de Agendamentos</h2>
+        <h2>
+            {% if current_user.role == 'cliente' %}
+                Meus Agendamentos
+            {% else %}
+                Lista de Agendamentos
+            {% endif %}
+        </h2>
 
         <div class="buttons">
             <a href="{{ url_for('bp_agendamentos.criar_agendamento') }}">
@@ -24,7 +30,9 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Cliente</th>
+                        {% if current_user.role != 'cliente' %}
+                            <th>Cliente</th>
+                        {% endif %}
                         <th>Serviço</th>
                         <th>Data</th>
                         <th>Status</th>
@@ -36,7 +44,9 @@
                     {% for agendamento in agendamentos %}
                         <tr>
                             <td>{{ agendamento.id }}</td>
-                            <td>{{ agendamento.cliente_nome }}</td>
+                            {% if current_user.role != 'cliente' %}
+                                <td>{{ agendamento.cliente_nome }}</td>
+                            {% endif %}
                             <td>{{ agendamento.servico_nome }}</td>
                             <td>{{ agendamento.data_hora }}</td>
                             <td>{{ agendamento.status }}</td>
@@ -51,6 +61,11 @@
                                 <a href="{{ url_for('bp_agendamentos.get_agendamentos_id', id_agendamento=agendamento.id) }}">
                                     <button>Ver Detalhes</button>
                                 </a>
+                                {% if current_user.role != 'cliente' %}
+                                    <a href="{{ url_for('bp_agendamentos.editar_agendamento', id_agendamento=agendamento.id) }}">
+                                        <button class="btn-editar">Editar</button>
+                                    </a>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}

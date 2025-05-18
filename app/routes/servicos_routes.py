@@ -8,6 +8,7 @@ from app.models.servico_models import (
     deletar_servico,
     atualizar_servico
 )
+from flask_login import login_user, logout_user, login_required, current_user
 
 servicos_bp = Blueprint('servicos_bp', __name__, url_prefix='/servicos')
 

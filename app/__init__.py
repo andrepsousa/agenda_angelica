@@ -1,5 +1,6 @@
-from flask import Flask,redirect,url_for
-from flask_migrate import Migrate 
+from flask import Flask, redirect, url_for
+from flask_migrate import Migrate
+from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from app.routes.main_routes import main_bp
@@ -12,6 +13,8 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+login_manager = LoginManager()
+
 
 def create_app():
     app = Flask(__name__)
@@ -25,12 +28,20 @@ def create_app():
     jwt.init_app(app)
 
     migrate = Migrate(app, db)
-    
+
     app.register_blueprint(main_bp)
     app.register_blueprint(bp_agendamentos)
     app.register_blueprint(servicos_bp)
     app.register_blueprint(usuarios_bp)
     app.register_blueprint(auth_bp)
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth_bp.login'
+
+    from app.models.models import User
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     @app.route('/')
     def index():

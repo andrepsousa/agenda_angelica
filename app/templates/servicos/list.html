@@ -10,15 +10,19 @@
     <div class="container">
         <h1>Lista de Serviços</h1>
 
-        <!-- Botões de navegação -->
-        <div class="buttons">
-            <a href="{{ url_for('servicos_bp.get_servico') }}">
-                <button class="btn btn-primary">Adicionar Novo Serviço</button>
-            </a>
-            <a href="{{ url_for('main_bp.index') }}">
-                <button class="btn btn-secondary">Voltar ao Início</button>
-            </a>
-        </div>
+        {% if current_user.is_authenticated %}
+            <div class="button-container">
+                {% if current_user.role != 'cliente' %}
+                    <a href="{{ url_for('servicos_bp.get_servico') }}">
+                        <button class="btn btn-primary">Adicionar Novo Serviço</button>
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <a href="{{ url_for('main_bp.index') }}">
+            <button class="btn btn-secondary">Voltar ao Início</button>
+        </a>
 
         <!-- Verificação e exibição de serviços -->
         {% if servicos %}
@@ -30,7 +34,9 @@
                             <th>Descrição</th>
                             <th>Preço</th>
                             <th>Status</th>
-                            <th>Ajustes</th>
+                            {% if current_user.is_authenticated and current_user.role != 'cliente' %}
+                                <th>Ajustes</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -39,12 +45,14 @@
                                 <td>{{ servico['nome'] }}</td>
                                 <td>{{ servico['descricao'] or 'Sem descrição' }}</td>
                                 <td>R$ {{ "%.2f"|format(servico['preco']) }}</td>
-                                <td>{{ 'Ativo' if servico['status'] else 'Inativo' }}</td>                                                                                             
-                                <td>
-                                    <a href="{{ url_for('servicos_bp.editar_servico', id_servico=servico['id']) }}">
-                                        <button class="btn btn-warning">Editar</button>
-                                    </a>                                                                           
-                                </td>                                
+                                <td>{{ 'Ativo' if servico['status'] else 'Inativo' }}</td>
+                                {% if current_user.is_authenticated and current_user.role != 'cliente' %}
+                                    <td>
+                                        <a href="{{ url_for('servicos_bp.editar_servico', id_servico=servico['id']) }}">
+                                            <button class="btn btn-warning">Editar</button>
+                                        </a>
+                                    </td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                     </tbody>
