@@ -14,7 +14,7 @@ class User(db.Model, UserMixin):
     cpf = db.Column(db.String(14), unique=True)
     data_nascimento = db.Column(db.Date)
     role = db.Column(db.String(20), nullable=False, default='cliente')
-    password_hash = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
 
     def set_password(self, senha):
         self.password_hash = generate_password_hash(senha)

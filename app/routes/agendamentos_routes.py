@@ -243,3 +243,16 @@ def deletar_agendamento(id_agendamento):
         return render_template('agendamentos/error.html', erro=str(e)), 404
     except Exception as e:
         return render_template('agendamentos/error.html', erro="Erro interno no servidor"), 500
+
+@bp_agendamentos.route('/listar', methods=['GET'])
+def list_agendamentos():
+    ags = Agendamento.query.all()
+    agendamentos = [{
+        'id': ag.id,
+        'cliente_nome': ag.usuario.nome,
+        'servico_nome': ag.servico.nome,
+        'data_hora': ag.data_hora,
+        'status': ag.status,
+        'observacoes': ag.observacoes
+    } for ag in ags]
+    return render_template('agendamentos/listagem_total.html', agendamentos=agendamentos)

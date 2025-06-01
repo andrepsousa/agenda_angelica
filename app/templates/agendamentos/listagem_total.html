@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todos os Agendamentos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Todos os Agendamentos</h2>
+        <table border="1" cellpadding="6">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Serviço</th>
+                    <th>Data e Hora</th>
+                    <th>Status</th>
+                    <th>Observações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ag in agendamentos %}
+                <tr>
+                    <td>{{ ag.id }}</td>
+                    <td>{{ ag.cliente_nome }}</td>
+                    <td>{{ ag.servico_nome }}</td>
+                    <td>{{ ag.data_hora.strftime('%d/%m/%Y %H:%M') if ag.data_hora }}</td>
+                    <td>{{ ag.status }}</td>
+                    <td>{{ ag.observacoes or '' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6">Nenhum agendamento encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
