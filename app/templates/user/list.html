@@ -11,49 +11,53 @@
         <h2>Lista de Usuários</h2>
 
         <div class="buttons">
-            <a href="{{ url_for('usuarios_bp.novo_usuario_form') }}"><button>Adicionar Novo Usuário</button></a>
-            <a href="{{ url_for('main_bp.index') }}"><button>Voltar ao Início</button></a>
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('bp_user.create_user') }}">
+                <button>Novo Usuário</button>
+            </a>
+            {% endif %}
         </div>
 
-        {% if usuarios %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nome</th>
-                        <th>Telefone</th>
-                        <th>CPF</th>
-                        <th>Data de Nascimento</th>
-                        <th>Endereço</th>
-                        <th>Ajustes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for usuario in usuarios %}
-                        <tr>
-                            <td>{{ usuario['id'] }}</td>
-                            <td>{{ usuario['nome'] }}</td>
-                            <td>{{ usuario['telefone'] }}</td>
-                            <td>{{ usuario['cpf'] }}</td>
-                            <td>{{ usuario['data_nascimento'] }}</td>
-                            <td>{{ usuario['endereco'] }}</td>
-                            <td>
-                                </a>
-                                <a href="{{ url_for('usuarios_bp.editar_usuario_form', id=usuario['id']) }}">
-                                    <button>Editar</button>
-                                </a>
-                                <form action="{{ url_for('usuarios_bp.deletar_usuario_por_id', id=usuario['id']) }}" method="POST">
-                                    <button type="submit" onclick="return confirm('Tem certeza que deseja deletar este usuário?')">Excluir</button>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        {% if users %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Telefone</th>
+                    <th>Status</th>
+                    <th>Função</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.nome }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.telefone }}</td>
+                    <td>{{ 'Ativo' if user.ativo else 'Inativo' }}</td>
+                    <td>{{ 'Administrador' if user.is_admin else 'Usuário' }}</td>
+                    <td>
+                        <a href="{{ url_for('bp_user.get_user', id=user.id) }}">
+                            <button>Detalhes</button>
+                        </a>
+                        {% if current_user.is_admin %}
+                        <a href="{{ url_for('bp_user.edit_user', id=user.id) }}">
+                            <button>Editar</button>
+                        </a>
+                        <a href="{{ url_for('bp_user.delete_user', id=user.id) }}">
+                            <button>Excluir</button>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         {% else %}
-            <p>Nenhum usuário encontrado.</p>
+        <p>Nenhum usuário encontrado.</p>
         {% endif %}
-
     </div>
 </body>
 </html>

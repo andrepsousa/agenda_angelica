@@ -2,40 +2,36 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Deletar Serviço</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excluir Serviço</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Tem certeza que deseja excluir este serviço?</h1>
-        
-        <div class="servico-details">
-            <p><strong>Nome:</strong> {{ servico['nome'] }}</p>
-            <p><strong>Descrição:</strong> {{ servico['descricao'] }}</p>
-            <p><strong>Preço:</strong> R$ {{ servico['preco'] }}</p>
+        <h2>Excluir Serviço</h2>
+
+        <div class="warning-message">
+            <h3>Atenção!</h3>
+            <p>Tem certeza que deseja excluir este serviço?</p>
         </div>
 
-        <!-- Exibição de mensagens flash -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul>
-                    {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+        <div class="servico-details">
+            <h3>Detalhes do Serviço:</h3>
+            <p><strong>Nome:</strong> {{ servico.nome }}</p>
+            <p><strong>Descrição:</strong> {{ servico.descricao }}</p>
+            <p><strong>Preço:</strong> R$ {{ "%.2f"|format(servico.preco) }}</p>
+            <p><strong>Duração:</strong> {{ servico.duracao }} minutos</p>
+            <p><strong>Status:</strong> {{ 'Ativo' if servico.ativo else 'Inativo' }}</p>
+        </div>
 
-        <!-- Formulário para deletar o serviço -->
-        <form action="{{ url_for('servicos_bp.delete_servico', id=servico['id']) }}" method="POST"
-              onsubmit="return confirm('Tem certeza que deseja excluir este serviço?');">
-            <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+        <form method="POST" action="{{ url_for('servicos_bp.delete_servico', id=servico.id) }}">
+            <div class="buttons">
+                <button type="submit">Confirmar Exclusão</button>
+                <a href="{{ url_for('servicos_bp.get_servico', id=servico.id) }}">
+                    <button type="button">Cancelar</button>
+                </a>
+            </div>
         </form>
-
-        <!-- Link para cancelar a exclusão -->
-        <a href="{{ url_for('servicos_bp.listar_servicos') }}">
-            <button type="button">Cancelar</button>
-        </a>
     </div>
 </body>
 </html>

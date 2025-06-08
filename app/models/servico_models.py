@@ -13,11 +13,13 @@ def servico_by_id_dict(id):
         raise ValueError("Serviço não encontrado.")
     return servico.to_dict()
 
+
 def servico_by_id_obj(id):
     servico = Service.query.get(id)
     if not servico:
         raise ValueError("Serviço não encontrado.")
     return servico
+
 
 def criar_servico(data):
     if not data.get("nome") or not data.get("preco"):

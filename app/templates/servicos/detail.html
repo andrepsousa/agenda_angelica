@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,23 +10,25 @@
     <div class="container">
         <h2>Detalhes do Serviço</h2>
 
-        {% if servico %}
-            <div class="service-details">
-                <p><strong>Nome:</strong> {{ servico.nome }}</p>
-                <p><strong>Descrição:</strong> {{ servico.descricao or 'Sem descrição disponível' }}</p>
-                <p><strong>Preço:</strong> R$ {{ servico.preco }}</p>
-                <p><strong>Status:</strong> {{ 'Ativo' if servico.status else 'Inativo' }}</p>
-            </div>
-        {% else %}
-            <p>Serviço não encontrado.</p>
-        {% endif %}
+        <div class="servico-details">
+            <h3>{{ servico.nome }}</h3>
+            <p><strong>Descrição:</strong> {{ servico.descricao }}</p>
+            <p><strong>Preço:</strong> R$ {{ "%.2f"|format(servico.preco) }}</p>
+            <p><strong>Duração:</strong> {{ servico.duracao }} minutos</p>
+            <p><strong>Status:</strong> {{ 'Ativo' if servico.ativo else 'Inativo' }}</p>
+        </div>
 
         <div class="buttons">
-            <a href="{{ url_for('main.deletar_servico', id_servico=servico.id) }}" class="btn btn-danger">
-                <button>Excluir serviço</button>
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('servicos_bp.edit_servico', id=servico.id) }}">
+                <button>Editar</button>
             </a>
-            <a href="{{ url_for('main.list_servicos') }}">
-                <button>Voltar para a lista de serviços</button>
+            <a href="{{ url_for('servicos_bp.delete_servico', id=servico.id) }}">
+                <button>Excluir</button>
+            </a>
+            {% endif %}
+            <a href="{{ url_for('servicos_bp.get_servicos') }}">
+                <button>Voltar</button>
             </a>
         </div>
     </div>

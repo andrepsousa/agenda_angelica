@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Agendamento</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Verificar Agendamento</h2>
+
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <div class="info-box">
+            <p>Um código de verificação foi enviado para seu WhatsApp.</p>
+            <p>Por favor, insira o código abaixo para confirmar seu agendamento.</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('bp_agendamentos.verificar_agendamento') }}">
+            <input type="hidden" name="agendamento_id" value="{{ agendamento.id }}">
+            
+            <div class="form-group">
+                <label for="codigo">Código de Verificação:</label>
+                <input type="text" id="codigo" name="codigo" required>
+            </div>
+
+            <div class="buttons">
+                <button type="submit">Verificar</button>
+                <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
+                    <button type="button">Cancelar</button>
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html> 

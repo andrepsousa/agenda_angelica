@@ -10,28 +10,26 @@
     <div class="container">
         <h2>Detalhes do Usuário</h2>
 
-        {% if usuario %}
-            <div class="user-details">
-                <p><strong>ID:</strong> {{ usuario.id }}</p>
-                <p><strong>Nome:</strong> {{ usuario.nome }}</p>
-                <p><strong>Endereço:</strong> {{ usuario.endereco }}</p>
-                <p><strong>Telefone:</strong> {{ usuario.telefone }}</p>
-                <p><strong>CPF:</strong> {{ usuario.cpf }}</p>
-                <p><strong>Data de Nascimento:</strong> {{ usuario.data_nascimento }}</p>
-            </div>
-        {% else %}
-            <p>Usuário não encontrado.</p>
-        {% endif %}
+        <div class="user-details">
+            <p><strong>Nome:</strong> {{ user.nome }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Telefone:</strong> {{ user.telefone }}</p>
+            <p><strong>Status:</strong> {{ 'Ativo' if user.ativo else 'Inativo' }}</p>
+            {% if user.is_admin %}
+            <p><strong>Função:</strong> Administrador</p>
+            {% endif %}
+        </div>
 
         <div class="buttons">
-            <a href="{{ url_for('main.editar_usuario', id_usuarios=usuario.id) }}" class="btn btn-danger">
-                <button>Editar Usuário</button>
-            <a href="{{ url_for('main.deletar_usuario', id_usuarios=usuario.id) }}" class="btn btn-danger">
-                <button>Excluir Usuário</button>
-            
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('bp_user.edit_user', id=user.id) }}">
+                <button>Editar</button>
             </a>
-
-            <a href="{{ url_for('main.get_usuarios') }}">
+            <a href="{{ url_for('bp_user.delete_user', id=user.id) }}">
+                <button>Excluir</button>
+            </a>
+            {% endif %}
+            <a href="{{ url_for('bp_user.get_users') }}">
                 <button>Voltar</button>
             </a>
         </div>

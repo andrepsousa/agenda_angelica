@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Verificar Código</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h2>Login</h2>
+        <h2>Verificar Código</h2>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -20,16 +20,16 @@
             {% endif %}
         {% endwith %}
 
-        <form method="POST" action="{{ url_for('auth_bp.send_code') }}">
+        <form method="POST" action="{{ url_for('auth_bp.verify_code') }}">
             <div class="form-group">
-                <label for="telefone">Telefone:</label>
-                <input type="tel" id="telefone" name="telefone" required>
+                <label for="codigo">Código:</label>
+                <input type="text" id="codigo" name="codigo" required>
             </div>
             
             <div class="buttons">
-                <button type="submit">Enviar Código</button>
-                <a href="{{ url_for('main_bp.index') }}">
-                    <button type="button">Voltar ao Início</button>
+                <button type="submit">Verificar</button>
+                <a href="{{ url_for('auth_bp.send_code') }}">
+                    <button type="button">Cancelar</button>
                 </a>
             </div>
         </form>

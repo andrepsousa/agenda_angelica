@@ -3,81 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deletar Usuário</title>
+    <title>Excluir Usuário</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        /* Estilo para os botões */
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-
-        /* Estilo para o botão Deletar */
-        button[type="submit"] {
-            background-color: red;
-            color: white;
-        }
-
-        button[type="submit"]:hover {
-            background-color: darkred;
-        }
-
-        /* Estilo para o botão Cancelar */
-        button[type="button"] {
-            background-color: #f0f0f0;
-            color: black;
-            border: 1px solid #ccc;
-        }
-
-        button[type="button"]:hover {
-            background-color: #e0e0e0;
-        }
-
-        /* Estilo do botão Voltar para lista */
-        .btn-voltar {
-            background-color: green;
-            color: white;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-
-        .btn-voltar:hover {
-            background-color: darkgreen;
-        }
-    </style>
 </head>
 <body>
-    <h2>Deletar Usuário</h2>
+    <div class="container">
+        <h2>Excluir Usuário</h2>
 
-    {% if mensagem %}
-        <p style="color: green;">{{ mensagem }}</p>
-        <a href="{{ url_for('main.get_usuarios') }}" class="btn-voltar">
-            Voltar para a lista de usuários
-        </a>
-    {% endif %}
+        <div class="warning-message">
+            <h3>Atenção!</h3>
+            <p>Tem certeza que deseja excluir este usuário?</p>
+        </div>
 
-    {% if erro %}
-        <p style="color: red;">{{ erro }}</p>
-    {% endif %}
+        <div class="user-details">
+            <h3>Detalhes do Usuário:</h3>
+            <p><strong>Nome:</strong> {{ user.nome }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Telefone:</strong> {{ user.telefone }}</p>
+            <p><strong>Status:</strong> {{ 'Ativo' if user.ativo else 'Inativo' }}</p>
+            {% if user.is_admin %}
+            <p><strong>Função:</strong> Administrador</p>
+            {% endif %}
+        </div>
 
-    {% if usuario %}
-        <p>Você tem certeza que deseja deletar o usuário {{ usuario.nome }}?</p>
-
-        <form action="{{ url_for('main.deletar_usuario', id_usuarios=usuario.id) }}" method="POST">
-            <input type="hidden" name="_method" value="DELETE"> <!-- Método DELETE -->
-
-            <button type="submit">Deletar</button>
-            <a href="{{ url_for('main.get_usuarios') }}">
-                <button type="button">Cancelar</button>
-            </a>
+        <form method="POST" action="{{ url_for('bp_user.delete_user', id=user.id) }}">
+            <div class="buttons">
+                <button type="submit">Confirmar Exclusão</button>
+                <a href="{{ url_for('bp_user.get_users') }}">
+                    <button type="button">Cancelar</button>
+                </a>
+            </div>
         </form>
-    {% endif %}
+    </div>
 </body>
 </html>

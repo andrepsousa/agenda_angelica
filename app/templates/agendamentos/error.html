@@ -7,8 +7,21 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h2>Erro</h2>
-    <p style="color: red;">{{ erro }}</p>
-    <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">Voltar para lista</a>
+    <div class="container">
+        <h2>Erro</h2>
+
+        <div class="error-message">
+            <p>{{ error }}</p>
+        </div>
+
+        <div class="buttons">
+            <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
+                <button>Voltar aos Agendamentos</button>
+            </a>
+            <a href="{{ url_for('main_bp.index') }}">
+                <button>Voltar ao Início</button>
+            </a>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitar Alteração de Agendamento</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Solicitar Alteração de Agendamento</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="agendamento-atual">
+            <h3>Agendamento Atual</h3>
+            <p><strong>Data:</strong> {{ agendamento.data_hora.strftime('%d/%m/%Y') }}</p>
+            <p><strong>Horário:</strong> {{ agendamento.data_hora.strftime('%H:%M') }}</p>
+            <p><strong>Serviço:</strong> {{ agendamento.servico.nome }}</p>
+        </div>
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="data">Nova Data:</label>
+                <input type="date" id="data" name="data" required min="{{ now.strftime('%Y-%m-%d') }}" value="{{ agendamento.data_hora.strftime('%Y-%m-%d') }}">
+            </div>
+
+            <div class="form-group">
+                <label for="hora">Novo Horário:</label>
+                <select id="hora" name="hora" required>
+                    <option value="">Selecione primeiro uma data</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="servico">Novo Serviço:</label>
+                <select id="servico" name="servico" required>
+                    <option value="">Selecione um serviço</option>
+                    {% for servico in servicos %}
+                    <option value="{{ servico.id }}" {% if servico.id == agendamento.servico_id %}selected{% endif %}>
+                        {{ servico.nome }} - R$ {{ "%.2f"|format(servico.preco) }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="observacoes">Observações:</label>
+                <textarea id="observacoes" name="observacoes">{{ agendamento.observacoes }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="motivo">Motivo da Alteração:</label>
+                <textarea id="motivo" name="motivo" required></textarea>
+            </div>
+
+            <div class="buttons">
+                <button type="submit">Solicitar Alteração</button>
+                <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
+                    <button type="button">Cancelar</button>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Função para carregar horários disponíveis
+        async function carregarHorariosDisponiveis(dataSelecionada) {
+            const horaSelect = document.getElementById('hora');
+            horaSelect.innerHTML = '<option value="">Carregando horários...</option>';
+            
+            try {
+                console.log('Iniciando busca de horários para:', dataSelecionada);
+                const response = await fetch(`/agendamentos/horarios-disponiveis/${dataSelecionada}`);
+                console.log('Resposta recebida:', response);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Erro na resposta:', errorData);
+                    throw new Error(errorData.erro || 'Erro ao carregar horários');
+                }
+                
+                const responseData = await response.json();
+                console.log('Dados recebidos:', responseData);
+                
+                if (responseData.horarios && responseData.horarios.length > 0) {
+                    horaSelect.innerHTML = '<option value="">Selecione um horário</option>';
+                    responseData.horarios.forEach(horario => {
+                        const option = document.createElement('option');
+                        option.value = horario;
+                        option.textContent = horario;
+                        if (horario === '{{ agendamento.data_hora.strftime("%H:%M") }}') {
+                            option.selected = true;
+                        }
+                        horaSelect.appendChild(option);
+                    });
+                    console.log('Horários carregados com sucesso');
+                } else {
+                    horaSelect.innerHTML = '<option value="">Nenhum horário disponível para esta data</option>';
+                    console.log('Nenhum horário disponível');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar horários:', error);
+                horaSelect.innerHTML = `<option value="">Erro: ${error.message}</option>`;
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('data').addEventListener('change', function() {
+            if (this.value) {
+                console.log('Data alterada:', this.value);
+                carregarHorariosDisponiveis(this.value);
+            }
+        });
+
+        // Carrega os horários ao iniciar a página
+        window.addEventListener('load', function() {
+            const dataInput = document.getElementById('data');
+            if (dataInput.value) {
+                carregarHorariosDisponiveis(dataInput.value);
+            }
+        });
+    </script>
+</body>
+</html> 

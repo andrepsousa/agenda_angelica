@@ -14,14 +14,10 @@ servicos_bp = Blueprint('servicos_bp', __name__, url_prefix='/servicos')
 
 
 # Página que lista todos os serviços
-@servicos_bp.route('/todos', methods=['GET'])
+@servicos_bp.route('/servicos', methods=['GET'])
 def get_servicos():
-    try:
-        servicos = listar_servicos()
-        return render_template('servicos/list.html', servicos=servicos)
-    except Exception as e:
-        flash(f'Erro ao carregar serviços: {e}', 'danger')
-        return render_template('servicos/list.html', servicos=[])
+    servicos = listar_servicos()
+    return render_template('servicos/list.html', servicos=servicos)
 
 # Página de detalhe de um serviço
 

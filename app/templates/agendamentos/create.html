@@ -2,129 +2,185 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Criar Agendamento</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='agendamentos/agendamentos.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Agendamento</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <form action="{{ url_for('bp_agendamentos.criar_agendamento') }}" method="POST">
-        {% if current_user.is_authenticated and current_user.role == 'cliente' %}
-            <input type="hidden" name="cliente_id" value="{{ current_user.id }}">
-        {% else %}
+    <div class="container">
+        <h2>Novo Agendamento</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('bp_agendamentos.criar_agendamento') }}">
             <div class="form-group">
-                <label for="cliente_id">Cliente:</label>
-                <select id="cliente_id" name="cliente_id" required>
-                    {% for cliente in clientes %}
-                        <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
+                <label for="data">Data:</label>
+                <input type="date" id="data" name="data" required min="{{ now.strftime('%Y-%m-%d') }}" value="{{ now.strftime('%Y-%m-%d') }}">
+            </div>
+
+            <div class="form-group">
+                <label for="hora">Hora:</label>
+                <select id="hora" name="hora" required>
+                    <option value="">Selecione primeiro uma data</option>
+                </select>
+            </div>
+
+            {% if current_user.is_admin %}
+            <div class="form-group">
+                <label for="cliente">Cliente:</label>
+                <select id="cliente" name="cliente" required>
+                    <option value="">Selecione um cliente</option>
+                    {% for usuario in clientes %}
+                    <option value="{{ usuario.id }}">{{ usuario.nome }}</option>
                     {% endfor %}
                 </select>
             </div>
-        {% endif %}
-    
-        <div class="form-group">
-            <label for="servico_id">Serviço:</label>
-            <select id="servico_id" name="servico_id" required>
-                {% for servico in servicos %}
-                    <option value="{{ servico.id }}">{{ servico.nome }}</option>
-                {% endfor %}
-            </select>
-        </div>
-    
-        <div class="form-group">
-            <label for="data">Data:</label>
-            <input type="date" id="data" name="data" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="hora">Hora:</label>
-            <select id="hora" name="hora" required>
-                <option value="">Selecione uma hora</option>
-                {% for hora in range(10, 19) %}
-                    <option value="{{ "%02d:00" % hora }}">{{ "%02d:00" % hora }}</option>
-                {% endfor %}
-            </select>
-        </div>
-    
-        <!-- Campo oculto para enviar data e hora combinados -->
-        <input type="hidden" id="data_hora" name="data_hora">
-    
-        <div class="form-group">
-            <label for="recorrencia">Recorrência:</label>
-            <select id="recorrencia" name="recorrencia" onchange="toggleNumRecorrencias()">
-                <option value="">Nenhuma</option>
-                <option value="semanal">Semanal</option>
-            </select>
-        </div>
-    
-        <div id="num_recorrencias_field" style="display: none;">
+            {% endif %}
+
             <div class="form-group">
+                <label for="servico">Serviço:</label>
+                <select id="servico" name="servico" required>
+                    <option value="">Selecione um serviço</option>
+                    {% for servico in servicos %}
+                    <option value="{{ servico.id }}">{{ servico.nome }} - R$ {{ "%.2f"|format(servico.preco) }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="recorrencia">Recorrência:</label>
+                <select id="recorrencia" name="recorrencia">
+                    <option value="">Sem recorrência</option>
+                    <option value="semanal">Semanal</option>
+                    <option value="quinzenal">Quinzenal</option>
+                    <option value="mensal">Mensal</option>
+                </select>
+                <small class="info-text">* A recorrência é limitada ao mês atual</small>
+            </div>
+
+            <div class="form-group" id="num_recorrencias_group" style="display: none;">
                 <label for="num_recorrencias">Número de Recorrências:</label>
-                <select id="num_recorrencias" name="num_recorrencias" disabled>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                </select>
+                <input type="number" id="num_recorrencias" name="num_recorrencias" min="2" value="2">
+                <small class="info-text" id="max_recorrencias_info"></small>
             </div>
-        </div>
-    
-        {% if current_user.is_authenticated and current_user.role != 'cliente' %}
+
             <div class="form-group">
-                <label for="status">Status:</label>
-                <select id="status" name="status">
-                    <option value="ativo">Ativo</option>
-                    <option value="cancelado">Cancelado</option>
-                </select>
+                <label for="observacoes">Observações:</label>
+                <textarea id="observacoes" name="observacoes"></textarea>
             </div>
-        {% else %}
-            <input type="hidden" name="status" value="ativo">
-        {% endif %}
-    
-        <div class="form-group">
-            <label for="observacoes">Observações:</label>
-            <textarea id="observacoes" name="observacoes" rows="4" cols="50" placeholder="Digite alguma observação..."></textarea>
-        </div>
-        
-        <button type="submit">Criar Agendamento</button>
-    </form>
-    
-    <!-- Botão Voltar com comportamento condicional -->
-    {% if current_user.role == 'cliente' %}
-        <a href="{{ url_for('main_bp.index') }}" class="btn-voltar">← Voltar</a>
-    {% else %}
-        <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}" class="btn-voltar">← Voltar</a>
-    {% endif %}
+
+            <div class="buttons">
+                <button type="submit">Agendar</button>
+                <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
+                    <button type="button">Cancelar</button>
+                </a>
+            </div>
+        </form>
+    </div>
 
     <script>
-        // Função para mostrar/ocultar o campo de número de recorrências baseado na seleção de recorrência
-        function toggleNumRecorrencias() {
-            var recorrenciaSelect = document.getElementById('recorrencia');
-            var numRecorrenciasField = document.getElementById('num_recorrencias_field');
-            var numRecorrenciasSelect = document.getElementById('num_recorrencias');
+        // Função para carregar horários disponíveis
+        async function carregarHorariosDisponiveis(dataSelecionada) {
+            const horaSelect = document.getElementById('hora');
+            horaSelect.innerHTML = '<option value="">Carregando horários...</option>';
             
-            if (recorrenciaSelect.value == 'semanal') {
-                numRecorrenciasField.style.display = 'block';  // Mostra o campo
-                numRecorrenciasSelect.disabled = false;  // Habilita o campo para edição
-            } else {
-                numRecorrenciasField.style.display = 'none';  // Esconde o campo
-                numRecorrenciasSelect.disabled = true;  // Desabilita o campo para não enviar valor
+            try {
+                console.log('Iniciando busca de horários para:', dataSelecionada);
+                const response = await fetch(`/agendamentos/horarios-disponiveis/${dataSelecionada}`);
+                console.log('Resposta recebida:', response);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Erro na resposta:', errorData);
+                    throw new Error(errorData.erro || 'Erro ao carregar horários');
+                }
+                
+                const responseData = await response.json();
+                console.log('Dados recebidos:', responseData);
+                
+                if (responseData.horarios && responseData.horarios.length > 0) {
+                    horaSelect.innerHTML = '<option value="">Selecione um horário</option>';
+                    responseData.horarios.forEach(horario => {
+                        const option = document.createElement('option');
+                        option.value = horario;
+                        option.textContent = horario;
+                        horaSelect.appendChild(option);
+                    });
+                    console.log('Horários carregados com sucesso');
+                } else {
+                    horaSelect.innerHTML = '<option value="">Nenhum horário disponível para esta data</option>';
+                    console.log('Nenhum horário disponível');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar horários:', error);
+                horaSelect.innerHTML = `<option value="">Erro: ${error.message}</option>`;
             }
         }
-    
-        // Função para combinar a data e a hora no formato esperado antes de enviar o formulário
-        document.querySelector('form').addEventListener('submit', function(e) {
-            var data = document.getElementById('data').value;
-            var hora = document.getElementById('hora').value;
+
+        // Função para calcular recorrências
+        function calcularMaxRecorrencias() {
+            const dataInput = document.getElementById('data');
+            const recorrenciaSelect = document.getElementById('recorrencia');
+            const numRecorrenciasInput = document.getElementById('num_recorrencias');
+            const maxRecorrenciasInfo = document.getElementById('max_recorrencias_info');
             
-            // Verifica se ambos os campos de data e hora foram preenchidos
-            if (data && hora) {
-                // Combina a data e a hora no formato correto
-                document.getElementById('data_hora').value = data + 'T' + hora;
-            } else {
-                // Impede o envio do formulário se algum dos campos não for preenchido
-                e.preventDefault();
-                alert("Por favor, forneça a data e hora para o agendamento.");
+            if (!dataInput.value || !recorrenciaSelect.value) {
+                return;
+            }
+
+            const dataSelecionada = new Date(dataInput.value);
+            const ultimoDiaMes = new Date(dataSelecionada.getFullYear(), dataSelecionada.getMonth() + 1, 0);
+            const diasRestantes = Math.floor((ultimoDiaMes - dataSelecionada) / (1000 * 60 * 60 * 24));
+            
+            let maxRecorrencias;
+            switch(recorrenciaSelect.value) {
+                case 'semanal':
+                    maxRecorrencias = Math.floor(diasRestantes / 7) + 1;
+                    break;
+                case 'quinzenal':
+                    maxRecorrencias = Math.floor(diasRestantes / 14) + 1;
+                    break;
+                case 'mensal':
+                    maxRecorrencias = 1; // Apenas uma vez, pois já está no mês atual
+                    break;
+                default:
+                    maxRecorrencias = 1;
+            }
+
+            numRecorrenciasInput.max = maxRecorrencias;
+            if (parseInt(numRecorrenciasInput.value) > maxRecorrencias) {
+                numRecorrenciasInput.value = maxRecorrencias;
+            }
+            
+            maxRecorrenciasInfo.textContent = `Máximo de ${maxRecorrencias} recorrência(s) possível(is) até o fim do mês`;
+        }
+
+        // Event Listeners
+        document.getElementById('data').addEventListener('change', function() {
+            if (this.value) {
+                console.log('Data alterada:', this.value);
+                carregarHorariosDisponiveis(this.value);
+                calcularMaxRecorrencias();
             }
         });
-    </script>    
+
+        document.getElementById('recorrencia').addEventListener('change', function() {
+            var numRecorrenciasGroup = document.getElementById('num_recorrencias_group');
+            if (this.value) {
+                numRecorrenciasGroup.style.display = 'block';
+                calcularMaxRecorrencias();
+            } else {
+                numRecorrenciasGroup.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>

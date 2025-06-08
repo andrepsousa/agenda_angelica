@@ -3,56 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendamento Criado</title>
+    <title>Agendamento Confirmado</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h2>Agendamento Criado com Sucesso!</h2>
+        <h2>Agendamento Confirmado</h2>
 
-        <div class="buttons">
-            <a href="{{ url_for('main_bp.index') }}"><button>Voltar ao Início</button></a>
-            <a href="{{ url_for('bp_agendamentos.criar_agendamento') }}"><button>Adicionar Novo Agendamento</button></a>
+        <div class="success-message">
+            <h3>Parabéns!</h3>
+            <p>Seu agendamento foi confirmado com sucesso.</p>
         </div>
 
-        <h3>Detalhes do Agendamento</h3>
-        {% for agendamento in agendamentos %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Cliente</th>
-                        <th>Serviço</th>
-                        <th>Data e Hora</th>
-                        <th>Status</th>
-                        <th>Recorrência</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Primeira linha, com as informações do cliente e serviço -->
-                    <tr>
-                        <td rowspan="{{ agendamento.recorrencias|length + 1 }}">{{ agendamento.cliente_nome }}</td>
-                        <td rowspan="{{ agendamento.recorrencias|length + 1 }}">{{ agendamento.servico_nome }}</td>
-                        <td>{{ agendamento.data_hora.strftime('%d/%m/%Y %H:%M') }}</td> 
-                        <td>{{ agendamento.status }}</td>
-                        <td rowspan="{{ agendamento.recorrencias|length + 1 }}">
-                            {% if agendamento.recorrencia %}
-                                Recorrente ({{ agendamento.recorrencia }})
-                            {% else %}
-                                Nenhuma
-                            {% endif %}
-                        </td>
-                    </tr>
+        <div class="agendamento-details">
+            <h3>Detalhes do Agendamento:</h3>
+            <p><strong>Data:</strong> {{ agendamento.data_hora.strftime('%d/%m/%Y') }}</p>
+            <p><strong>Horário:</strong> {{ agendamento.data_hora.strftime('%H:%M') }}</p>
+            <p><strong>Serviço:</strong> {{ agendamento.servico.nome }}</p>
+            {% if agendamento.observacoes %}
+            <p><strong>Observações:</strong> {{ agendamento.observacoes }}</p>
+            {% endif %}
+        </div>
 
-                    <!-- Linhas subsequentes para as datas de recorrência -->
-                    {% for recorrencia in agendamento.recorrencias %}
-                        <tr>
-                            <td>{{ recorrencia.strftime('%d/%m/%Y %H:%M') }}</td> <!-- Exibindo cada data de recorrência -->
-                            <td>{{ agendamento.status }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endfor %}
+        <div class="buttons">
+            <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
+                <button>Ver Meus Agendamentos</button>
+            </a>
+            <a href="{{ url_for('main_bp.index') }}">
+                <button>Voltar ao Início</button>
+            </a>
+        </div>
     </div>
 </body>
 </html>

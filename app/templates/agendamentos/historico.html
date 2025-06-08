@@ -1,26 +1,65 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if current_user.role == 'admin' %}Histórico de Agendamentos{% else %}Meu Histórico{% endif %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>{% if current_user.role == 'admin' %}Histórico de Agendamentos{% else %}Meu Histórico{% endif %}</h2>
 
-{% block content %}
-<h2>Histórico de Agendamentos - {{ cliente.nome }}</h2>
+        {% if agendamentos %}
+        <table>
+            <thead>
+                <tr>
+                    {% if current_user.role == 'admin' %}
+                    <th>Cliente</th>
+                    {% endif %}
+                    <th>Data</th>
+                    <th>Horário</th>
+                    <th>Serviço</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for agendamento in agendamentos %}
+                <tr>
+                    {% if current_user.role == 'admin' %}
+                    <td>{{ agendamento.cliente.nome }}</td>
+                    {% endif %}
+                    <td>{{ agendamento.data_hora.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ agendamento.data_hora.strftime('%H:%M') }}</td>
+                    <td>{{ agendamento.servico.nome }}</td>
+                    <td>{{ agendamento.status }}</td>
+                    <td>
+                        <a href="{{ url_for('bp_agendamentos.get_agendamentos_id', id_agendamento=agendamento.id) }}">
+                            <button>Detalhes</button>
+                        </a>
+                        {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('bp_agendamentos.editar_agendamento', id_agendamento=agendamento.id) }}">
+                            <button>Editar</button>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>{% if current_user.role == 'admin' %}Nenhum agendamento encontrado no histórico.{% else %}Você ainda não tem agendamentos no histórico.{% endif %}</p>
+        {% endif %}
 
-<table border="1" cellpadding="5">
-    <thead>
-        <tr>
-            <th>Serviço</th>
-            <th>Data e Hora</th>
-            <th>Status</th>
-            <th>Em Espera</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for agendamento in agendamentos %}
-        <tr>
-            <td>{{ agendamento.servico.nome }}</td>
-            <td>{{ agendamento.data_hora.strftime('%d/%m/%Y %H:%M') }}</td>
-            <td>{{ agendamento.status }}</td>
-            <td>{{ 'Sim' if agendamento.em_espera else 'Não' }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% endblock %}
+        <div class="buttons">
+            <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
+                <button>Voltar para Agendamentos</button>
+            </a>
+            <a href="{{ url_for('main_bp.index') }}">
+                <button>Voltar ao Início</button>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

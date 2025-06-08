@@ -35,7 +35,7 @@ def create_app():
     app.register_blueprint(usuarios_bp)
     app.register_blueprint(auth_bp)
     login_manager.init_app(app)
-    login_manager.login_view = 'auth_bp.login'
+    login_manager.login_view = 'auth_bp.send_code'
 
     from app.models.models import User
 

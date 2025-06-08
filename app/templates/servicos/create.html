@@ -1,57 +1,49 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criar Novo Serviço</title>
+    <title>Criar Serviço</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Criar Novo Serviço</h1>
+        <h2>Criar Serviço</h2>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul>
-                    {% for category, message in messages %}
-                        {% if category.startswith('servico_create_') %}
-                            <li class="{{ category }}">{{ message }}</li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
 
-
-        <form action="{{ url_for('servicos_bp.post_servico') }}" method="POST">
+        <form method="POST" action="{{ url_for('servicos_bp.create_servico') }}">
             <div class="form-group">
-                <label for="nome">Nome do Serviço:</label>
-                <input type="text" id="nome" name="nome" required><br><br>
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required>
             </div>
 
             <div class="form-group">
                 <label for="descricao">Descrição:</label>
-                <textarea id="descricao" name="descricao"></textarea><br><br>
+                <textarea id="descricao" name="descricao" required></textarea>
             </div>
 
             <div class="form-group">
-                <label for="preco">Preço:</label>
-                <input type="number" id="preco" name="preco" step="0.01" required><br><br>
+                <label for="preco">Preço (R$):</label>
+                <input type="number" id="preco" name="preco" step="0.01" min="0" required>
             </div>
 
             <div class="form-group">
-                <label for="status">Ativo:</label>
-                <input type="checkbox" id="status" name="status" checked><br><br>
+                <label for="duracao">Duração (minutos):</label>
+                <input type="number" id="duracao" name="duracao" min="1" required>
             </div>
 
-            <button type="submit">Criar Serviço</button>
+            <div class="buttons">
+                <button type="submit">Criar</button>
+                <a href="{{ url_for('servicos_bp.get_servicos') }}">
+                    <button type="button">Cancelar</button>
+                </a>
+            </div>
         </form>
-
-        <div class="buttons">
-            <a href="{{ url_for('servicos_bp.get_servicos') }}">
-                <button type="button">Voltar para a Lista de Serviços</button>
-            </a>
-        </div>
     </div>
 </body>
 </html>

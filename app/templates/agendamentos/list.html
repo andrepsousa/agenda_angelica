@@ -3,22 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Agendamentos</title>
+    <title>{% if current_user.role == 'admin' %}Lista de Agendamentos{% else %}Meus Agendamentos{% endif %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h2>
-            {% if current_user.role == 'cliente' %}
-                Meus Agendamentos
-            {% else %}
-                Lista de Agendamentos
-            {% endif %}
-        </h2>
+        <h2>{% if current_user.role == 'admin' %}Lista de Agendamentos{% else %}Meus Agendamentos{% endif %}</h2>
 
         <div class="buttons">
             <a href="{{ url_for('bp_agendamentos.criar_agendamento') }}">
-                <button>Adicionar Novo Agendamento</button>
+                <button>Novo Agendamento</button>
             </a>
             <a href="{{ url_for('main_bp.index') }}">
                 <button>Voltar ao Início</button>
@@ -29,50 +23,67 @@
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        {% if current_user.role != 'cliente' %}
-                            <th>Cliente</th>
+                        {% if current_user.role == 'admin' %}
+                        <th>Cliente</th>
                         {% endif %}
                         <th>Serviço</th>
                         <th>Data</th>
+                        <th>Horário</th>
                         <th>Status</th>
-                        <th>Recorrência</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for agendamento in agendamentos %}
-                        <tr>
-                            <td>{{ agendamento.id }}</td>
-                            {% if current_user.role != 'cliente' %}
-                                <td>{{ agendamento.cliente_nome }}</td>
+                    <tr>
+                        {% if current_user.role == 'admin' %}
+                        <td>{{ agendamento.cliente.nome }}</td>
+                        {% endif %}
+                        <td>{{ agendamento.servico.nome }}</td>
+                        <td>{{ agendamento.data_hora.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ agendamento.data_hora.strftime('%H:%M') }}</td>
+                        <td>{{ agendamento.get_status_formatado() }}</td>
+                        <td>
+                            <a href="{{ url_for('bp_agendamentos.get_agendamentos_id', id_agendamento=agendamento.id) }}">
+                                <button>Detalhes</button>
+                            </a>
+                            {% if current_user.role == 'admin' %}
+                            <a href="{{ url_for('bp_agendamentos.editar_agendamento', id_agendamento=agendamento.id) }}">
+                                <button>Editar</button>
+                            </a>
+                            <a href="{{ url_for('bp_agendamentos.deletar_agendamento', id_agendamento=agendamento.id) }}">
+                                <button>Excluir</button>
+                            </a>
                             {% endif %}
-                            <td>{{ agendamento.servico_nome }}</td>
-                            <td>{{ agendamento.data_hora }}</td>
-                            <td>{{ agendamento.status }}</td>
-                            <td>
-                                {% if agendamento.recorrencia %}
-                                    {{ agendamento.recorrencia }}
+                            {% if agendamento.status == 'confirmado' %}
+                                {% if current_user.role == 'admin' or agendamento.cliente_id == current_user.id %}
+                                    <a href="{{ url_for('bp_agendamentos.solicitar_alteracao', id_agendamento=agendamento.id) }}" class="btn btn-warning">Alterar</a>
+                                    <a href="{{ url_for('bp_agendamentos.solicitar_cancelamento', id_agendamento=agendamento.id) }}" class="btn btn-danger">Cancelar</a>
+                                {% endif %}
+                            {% elif agendamento.status == 'alteracao_pendente' %}
+                                {% if current_user.role == 'admin' %}
+                                    <form method="POST" action="{{ url_for('bp_agendamentos.confirmar_alteracao', id_agendamento=agendamento.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-success">Confirmar Alteração</button>
+                                    </form>
                                 {% else %}
-                                    Não há recorrência
+                                    <span class="badge badge-warning">Aguardando Confirmação</span>
                                 {% endif %}
-                            </td>
-                            <td>
-                                <a href="{{ url_for('bp_agendamentos.get_agendamentos_id', id_agendamento=agendamento.id) }}">
-                                    <button>Ver Detalhes</button>
-                                </a>
-                                {% if current_user.role != 'cliente' %}
-                                    <a href="{{ url_for('bp_agendamentos.editar_agendamento', id_agendamento=agendamento.id) }}">
-                                        <button class="btn-editar">Editar</button>
-                                    </a>
+                            {% elif agendamento.status == 'cancelamento_pendente' %}
+                                {% if current_user.role == 'admin' %}
+                                    <form method="POST" action="{{ url_for('bp_agendamentos.confirmar_cancelamento', id_agendamento=agendamento.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-success">Confirmar Cancelamento</button>
+                                    </form>
+                                {% else %}
+                                    <span class="badge badge-warning">Aguardando Confirmação</span>
                                 {% endif %}
-                            </td>
-                        </tr>
+                            {% endif %}
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
         {% else %}
-            <p>Nenhum agendamento encontrado.</p>
+            <p>{% if current_user.role == 'admin' %}Nenhum agendamento encontrado.{% else %}Você ainda não tem agendamentos.{% endif %}</p>
         {% endif %}
     </div>
 </body>

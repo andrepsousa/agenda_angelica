@@ -7,36 +7,64 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h2>Editar Usuário</h2>
+    <div class="container">
+        <h2>Editar Usuário</h2>
 
-    {% if mensagem %}
-        <p style="color: green;">{{ mensagem }}</p>
-    {% endif %}
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
 
-    {% if erro %}
-        <p style="color: red;">{{ erro }}</p>
-    {% endif %}
+        <form method="POST" action="{{ url_for('bp_user.edit_user', id=user.id) }}">
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" value="{{ user.nome }}" required>
+            </div>
 
-    <form action="{{ url_for('usuarios_bp.atualizar_usuario_por_id', id=usuario.id) }}" method="POST">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="{{ user.email }}" required>
+            </div>
 
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" value="{{ usuario.nome }}" required>
+            <div class="form-group">
+                <label for="telefone">Telefone:</label>
+                <input type="tel" id="telefone" name="telefone" value="{{ user.telefone }}" required>
+            </div>
 
-        <label for="endereco">Endereço:</label>
-        <input type="text" id="endereco" name="endereco" value="{{ usuario.endereco }}" required>
+            <div class="form-group">
+                <label for="senha">Nova Senha (opcional):</label>
+                <input type="password" id="senha" name="senha">
+            </div>
 
-        <label for="telefone">Telefone:</label>
-        <input type="text" id="telefone" name="telefone" value="{{ usuario.telefone }}" required>
+            <div class="form-group">
+                <label for="confirmar_senha">Confirmar Nova Senha:</label>
+                <input type="password" id="confirmar_senha" name="confirmar_senha">
+            </div>
 
-        <label for="cpf">CPF:</label>
-        <input type="text" id="cpf" name="cpf" value="{{ usuario.cpf }}" required>
+            {% if current_user.is_admin %}
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="is_admin" {% if user.is_admin %}checked{% endif %}>
+                    Usuário Administrador
+                </label>
+            </div>
 
-        <label for="data_nascimento">Data de Nascimento:</label>
-        <input type="date" id="data_nascimento" name="data_nascimento" value="{{ usuario.data_nascimento }}" required>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="ativo" {% if user.ativo %}checked{% endif %}>
+                    Usuário Ativo
+                </label>
+            </div>
+            {% endif %}
 
-        <button type="submit">Atualizar</button>
-    </form>
-
-    <a href="{{ url_for('usuarios_bp.listar_usuarios') }}" class="botao-voltar">Voltar para a Lista</a>
+            <div class="buttons">
+                <button type="submit">Salvar Alterações</button>
+                <a href="{{ url_for('bp_user.get_users') }}">
+                    <button type="button">Cancelar</button>
+                </a>
+            </div>
+        </form>
+    </div>
 </body>
 </html>

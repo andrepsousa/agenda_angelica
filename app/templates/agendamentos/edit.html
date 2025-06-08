@@ -4,82 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Agendamento</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='agendamentos/agendamentos.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
         <h2>Editar Agendamento</h2>
 
-        <form method="POST" action="{{ url_for('bp_agendamentos.editar_agendamento', id_agendamento=agendamento.id) }}">
-            {% if current_user.role != 'cliente' %}
-                <div class="form-group">
-                    <label for="cliente_id">Cliente:</label>
-                    <select id="cliente_id" name="cliente_id" required>
-                        {% for cliente in clientes %}
-                            <option value="{{ cliente.id }}" {% if cliente.id == agendamento.cliente_id %}selected{% endif %}>
-                                {{ cliente.nome }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('bp_agendamentos.edit_agendamento', id=agendamento.id) }}">
+            <div class="form-group">
+                <label for="data">Data:</label>
+                <input type="date" id="data" name="data" value="{{ agendamento.data_hora.strftime('%Y-%m-%d') }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="hora">Hora:</label>
+                <input type="time" id="hora" name="hora" value="{{ agendamento.data_hora.strftime('%H:%M') }}" required>
+            </div>
+
+            {% if current_user.is_admin %}
+            <div class="form-group">
+                <label for="cliente">Cliente:</label>
+                <select id="cliente" name="cliente" required>
+                    <option value="">Selecione um cliente</option>
+                    {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}" {% if usuario.id == agendamento.usuario_id %}selected{% endif %}>
+                        {{ usuario.nome }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
             {% endif %}
 
             <div class="form-group">
-                <label for="servico_id">Serviço:</label>
-                <select id="servico_id" name="servico_id" required>
+                <label for="servico">Serviço:</label>
+                <select id="servico" name="servico" required>
+                    <option value="">Selecione um serviço</option>
                     {% for servico in servicos %}
-                        <option value="{{ servico.id }}" {% if servico.id == agendamento.servico_id %}selected{% endif %}>
-                            {{ servico.nome }}
-                        </option>
+                    <option value="{{ servico.id }}" {% if servico.id == agendamento.servico_id %}selected{% endif %}>
+                        {{ servico.nome }} - R$ {{ "%.2f"|format(servico.preco) }}
+                    </option>
                     {% endfor %}
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="data_hora">Data e Hora:</label>
-                <input type="datetime-local" id="data_hora" name="data_hora" 
-                       value="{{ agendamento.data_hora.strftime('%Y-%m-%dT%H:%M') }}" required>
+                <label for="observacoes">Observações:</label>
+                <textarea id="observacoes" name="observacoes">{{ agendamento.observacoes }}</textarea>
             </div>
 
+            {% if current_user.is_admin %}
             <div class="form-group">
-                <label for="recorrencia">Recorrência:</label>
-                <select id="recorrencia" name="recorrencia">
-                    <option value="">Nenhuma</option>
-                    <option value="semanal" {% if agendamento.recorrencia == 'semanal' %}selected{% endif %}>Semanal</option>
+                <label for="status">Status:</label>
+                <select id="status" name="status" required>
+                    <option value="pendente" {% if agendamento.status == 'pendente' %}selected{% endif %}>Pendente</option>
+                    <option value="confirmado" {% if agendamento.status == 'confirmado' %}selected{% endif %}>Confirmado</option>
+                    <option value="cancelado" {% if agendamento.status == 'cancelado' %}selected{% endif %}>Cancelado</option>
+                    <option value="concluido" {% if agendamento.status == 'concluido' %}selected{% endif %}>Concluído</option>
                 </select>
             </div>
-
-            {% if current_user.role != 'cliente' %}
-                <div class="form-group">
-                    <label for="status">Status:</label>
-                    <select id="status" name="status">
-                        <option value="ativo" {% if agendamento.status == 'ativo' %}selected{% endif %}>Ativo</option>
-                        <option value="cancelado" {% if agendamento.status == 'cancelado' %}selected{% endif %}>Cancelado</option>
-                    </select>
-                </div>
             {% endif %}
 
-            <div class="form-group">
-                <label for="observacoes">Observações:</label>
-                <textarea id="observacoes" name="observacoes" rows="4" cols="50">{{ agendamento.observacoes or '' }}</textarea>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn-primary">Atualizar Agendamento</button>
-                <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}" class="btn-voltar">Cancelar</a>
+            <div class="buttons">
+                <button type="submit">Salvar</button>
+                <a href="{{ url_for('bp_agendamentos.get_agendamento', id=agendamento.id) }}">
+                    <button type="button">Cancelar</button>
+                </a>
             </div>
         </form>
     </div>
-
-    <script>
-        // Validação básica antes de enviar o formulário
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const dataHora = document.getElementById('data_hora').value;
-            if (!dataHora) {
-                e.preventDefault();
-                alert('Por favor, preencha a data e hora do agendamento.');
-            }
-        });
-    </script>
 </body>
 </html>

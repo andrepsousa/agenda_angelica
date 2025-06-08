@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,59 +8,50 @@
 </head>
 <body>
     <div class="container">
-        <h1>Lista de Serviços</h1>
+        <h2>Serviços</h2>
 
-        {% if current_user.is_authenticated %}
-            <div class="button-container">
-                {% if current_user.role != 'cliente' %}
-                    <a href="{{ url_for('servicos_bp.get_servico') }}">
-                        <button class="btn btn-primary">Adicionar Novo Serviço</button>
-                    </a>
-                {% endif %}
-            </div>
+        {% if current_user.is_admin %}
+        <div class="buttons">
+            <a href="{{ url_for('servicos_bp.create_servico') }}">
+                <button>Novo Serviço</button>
+            </a>
+        </div>
         {% endif %}
 
-        <a href="{{ url_for('main_bp.index') }}">
-            <button class="btn btn-secondary">Voltar ao Início</button>
-        </a>
-
-        <!-- Verificação e exibição de serviços -->
         {% if servicos %}
-            <div class="table-responsive">
-                <table class="tabela-servicos">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Descrição</th>
-                            <th>Preço</th>
-                            <th>Status</th>
-                            {% if current_user.is_authenticated and current_user.role != 'cliente' %}
-                                <th>Ajustes</th>
-                            {% endif %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for servico in servicos %}
-                            <tr class="servico">
-                                <td>{{ servico['nome'] }}</td>
-                                <td>{{ servico['descricao'] or 'Sem descrição' }}</td>
-                                <td>R$ {{ "%.2f"|format(servico['preco']) }}</td>
-                                <td>{{ 'Ativo' if servico['status'] else 'Inativo' }}</td>
-                                {% if current_user.is_authenticated and current_user.role != 'cliente' %}
-                                    <td>
-                                        <a href="{{ url_for('servicos_bp.editar_servico', id_servico=servico['id']) }}">
-                                            <button class="btn btn-warning">Editar</button>
-                                        </a>
-                                    </td>
-                                {% endif %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <div class="servicos-list">
+            {% for servico in servicos %}
+            <div class="servico-item">
+                <h3>{{ servico.nome }}</h3>
+                <p>{{ servico.descricao }}</p>
+                <p><strong>Preço:</strong> R$ {{ "%.2f"|format(servico.preco) }}</p>
+                <p><strong>Duração:</strong> {{ servico.duracao }} minutos</p>
+
+                <div class="buttons">
+                    <a href="{{ url_for('servicos_bp.get_servico', id=servico.id) }}">
+                        <button>Detalhes</button>
+                    </a>
+                    {% if current_user.is_admin %}
+                    <a href="{{ url_for('servicos_bp.edit_servico', id=servico.id) }}">
+                        <button>Editar</button>
+                    </a>
+                    <a href="{{ url_for('servicos_bp.delete_servico', id=servico.id) }}">
+                        <button>Excluir</button>
+                    </a>
+                    {% endif %}
+                </div>
             </div>
+            {% endfor %}
+        </div>
         {% else %}
-            <p class="no-data">Não há serviços cadastrados no momento.</p>
+        <p>Não há serviços cadastrados.</p>
         {% endif %}
+
+        <div class="buttons">
+            <a href="{{ url_for('main_bp.index') }}">
+                <button>Voltar</button>
+            </a>
+        </div>
     </div>
 </body>
 </html>

@@ -3,104 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Inicial - Agenda Angelica</title>
+    <title>Agenda Angélica</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <header>
-        <h1>Bem-vindo ao Sistema de Agendamento</h1>
+    <div class="container">
+        <h1>Bem-vindo à Agenda Angélica</h1>
 
         {% if current_user.is_authenticated %}
-            <p>Olá, {{ current_user.nome }}!</p>
-            <a href="{{ url_for('auth_bp.logout') }}"><button>Logout</button></a>
-        {% else %}
-            <a href="{{ url_for('auth_bp.login') }}"><button>Login</button></a>
-            <a href="{{ url_for('auth_bp.register') }}"><button>Cadastro</button></a>
-        {% endif %}
-    </header>
+            <div class="welcome-message">
+                <h2>Olá, {{ current_user.nome }}!</h2>
+                <p>O que você gostaria de fazer hoje?</p>
+            </div>
 
-    {% if current_user.is_authenticated %}
-    <div class="button-container">
-        <a href="{{ url_for('bp_agendamentos.criar_agendamento') }}">
-            <button>Cadastrar Agendamento</button>
-        </a>
-        <a href="{{ url_for('servicos_bp.get_servicos') }}">
-            <button>Ver Serviços</button>
-        </a>
-        {% if current_user.role != 'cliente' %}
-            <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
-                <button>Ver Agendamentos</button>
-            </a>
-            <a href="{{ url_for('usuarios_bp.listar_usuarios') }}">
-                <button>Usuários</button>
-            </a>
-        {% else %}
-            <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
-                <button>Meus Agendamentos</button>
-            </a>
-        {% endif %}
-    </div>
-    {% endif %}
-
-    <!-- Agendamentos para Hoje -->
-    {% if current_user.is_authenticated %}
-    <h2>
-        {% if current_user.role == 'cliente' %}
-            Meus Agendamentos para Hoje
-        {% else %}
-            Agendamentos para Hoje
-        {% endif %}
-    </h2>
-    <div>
-        {% if agendamentos %}
-            <table>
-                <thead>
-                    <tr>
-                        {% if current_user.role != 'cliente' %}
-                            <th>Cliente</th>
-                        {% endif %}
-                        <th>Serviço</th>
-                        <th>Horário</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for agendamento in agendamentos %}
-                        <tr>
-                            {% if current_user.role != 'cliente' %}
-                                <td>{{ agendamento.usuario.nome }}</td>
-                            {% endif %}
-                            <td>{{ agendamento.servico.nome }}</td>
-                            <td>{{ agendamento.data_hora.strftime('%H:%M') }}</td>
-                            <td>{{ agendamento.status }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>Não há agendamentos para hoje.</p>
-        {% endif %}
-    </div>
-    {% endif %}
-
-    <!-- Serviços Disponíveis -->
-    <h2>Serviços Disponíveis</h2>
-    <div class="servicos-container">
-        {% if servicos %}
-            <div class="servicos">
-                {% for servico in servicos %}
-                    <div class="servico-card">
-                        <h3>{{ servico.nome }}</h3>
-                        <p class="descricao">{{ servico.descricao }}</p>
-                        <p class="preco">R$ {{ "%.2f"|format(servico.preco) }}</p>
-                        <a href="{{ url_for('servicos_bp.get_servicos', id_servico=servico.id) }}">
-                            <button class="detalhes-btn">Ver Detalhes</button>
+            <div class="menu">
+                <div class="menu-item">
+                    <h3>Agendamentos</h3>
+                    <div class="buttons">
+                        <a href="{{ url_for('bp_agendamentos.criar_agendamento') }}">
+                            <button>Novo Agendamento</button>
+                        </a>
+                        <a href="{{ url_for('bp_agendamentos.get_agendamentos') }}">
+                            <button>Ver Agendamentos</button>
+                        </a>
+                        <a href="{{ url_for('bp_agendamentos.get_historico') }}">
+                            <button>Histórico</button>
                         </a>
                     </div>
-                {% endfor %}
+                </div>
+
+                {% if current_user.is_admin %}
+                <div class="menu-item">
+                    <h3>Administração</h3>
+                    <div class="buttons">
+                        <a href="{{ url_for('servicos_bp.get_servicos') }}">
+                            <button>Gerenciar Serviços</button>
+                        </a>
+                        <a href="{{ url_for('usuarios_bp.get_users') }}">
+                            <button>Gerenciar Usuários</button>
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="menu-item">
+                    <h3>Conta</h3>
+                    <div class="buttons">
+                        <a href="{{ url_for('auth_bp.logout') }}">
+                            <button>Sair</button>
+                        </a>
+                    </div>
+                </div>
             </div>
+
+            {% if servicos %}
+            <div class="menu-item">
+                <h3>Serviços Disponíveis</h3>
+                <div class="servicos-grid">
+                    {% for servico in servicos %}
+                    <div class="servico-card">
+                        <h4>{{ servico.nome }}</h4>
+                        <p>{{ servico.descricao }}</p>
+                        <p class="preco">R$ {{ "%.2f"|format(servico.preco) }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if agendamentos %}
+            <div class="menu-item">
+                <h3>Agendamentos de Hoje</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Horário</th>
+                            <th>Serviço</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agendamento in agendamentos %}
+                        <tr>
+                            <td>{{ agendamento.data_hora.strftime('%H:%M') }}</td>
+                            <td>{{ agendamento.servico.nome }}</td>
+                            <td>{{ agendamento.status }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
         {% else %}
-            <p>Não há serviços cadastrados no momento.</p>
+            <div class="welcome-message">
+                <p>Faça login para acessar o sistema.</p>
+            </div>
+            <div class="buttons">
+                <a href="{{ url_for('auth_bp.send_code') }}">
+                    <button>Entrar</button>
+                </a>
+                <a href="{{ url_for('auth_bp.register') }}">
+                    <button>Cadastrar</button>
+                </a>
+            </div>
         {% endif %}
     </div>
 </body>
