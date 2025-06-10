@@ -1,4 +1,4 @@
-from flask import Blueprint, request, flash, redirect, url_for, render_template
+from flask import Blueprint, request,jsonify, flash, redirect, url_for, render_template
 from datetime import datetime
 from app.models.user_models import (
     listar_usuarios as listar_usuarios_model,
@@ -17,10 +17,9 @@ usuarios_bp = Blueprint('usuarios_bp', __name__, url_prefix='/usuarios')
 def listar_usuarios():
     try:
         usuarios = listar_usuarios_model()
-        return render_template('user/list.html', usuarios=usuarios)
+        return jsonify([u.to_dict() for u in usuarios])
     except Exception as e:
-        flash(f"Erro ao listar usuários: {e}", "danger")
-        return render_template('user/list.html', usuarios=[])
+        return jsonify({"erro": str(e)}), 500
 
 
 # Página de detalhes de um usuário
@@ -40,30 +39,17 @@ def novo_usuario_form():
 
 
 # POST - Criação de novo usuário
-@usuarios_bp.route('/', methods=['POST'])
-def criar_novo_usuario():
-    data = {
-        "nome": request.form.get("nome"),
-        "endereco": request.form.get("endereco"),
-        "telefone": request.form.get("telefone"),
-        "cpf": request.form.get("cpf"),
-        "data_nascimento": request.form.get("data_nascimento")
-    }
-
+@usuarios_bp.route('/criar', methods=['POST'])
+def criar_usuario():
+    data = request.get_json()
     try:
         criar_usuario(data)
-        flash("Usuário criado com sucesso!", "success")
-        return redirect(url_for('usuarios_bp.listar_usuarios'))
-
+        return jsonify({"mensagem": "Usuário criado com sucesso!"}), 201
     except ValueError as e:
-        # Aqui esperamos um dicionário de erros
-        if isinstance(e.args[0], dict):
-            return render_template('user/create.html', erros=e.args[0], valores=data)
-
-        else:
-            flash(f"Erro inesperado: {e}", "danger")
-            return redirect(url_for('usuarios_bp.novo_usuario_form'))
-
+        erro = e.args[0]
+        if not isinstance(erro, dict):
+            erro = {"geral": str(erro)}
+        return jsonify({"erro": erro}), 400
 
 # Página de atualização de usuário (GET)
 @usuarios_bp.route('/editar/<int:id>', methods=['GET'])
